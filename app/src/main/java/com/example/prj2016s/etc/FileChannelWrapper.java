@@ -1,4 +1,6 @@
-package com.example.prj2016s;
+package com.example.prj2016s.etc;
+
+import com.example.prj2016s.etc.SeekableByteChannel;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
