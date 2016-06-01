@@ -1,20 +1,20 @@
 //package org.jcodec.samples.transcode;
 
+
 package com.example.prj2016s;
 
+import com.example.prj2016s.Packet.MTSPacket;
+import com.example.prj2016s.etc.SeekableByteChannel;
+
 import org.jcodec.containers.mps.MPSDemuxer;
-import java.io.Closeable;
+
 import java.io.IOException;
-import java.nio.channels.ByteChannel;
-import java.nio.channels.Channel;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.Set;
+
 import org.jcodec.common.NIOUtils;
 
-public class MTSDemuxer {
+public class TS2ESConverter {
     private MPSDemuxer psDemuxer;
     private SeekableByteChannel tsChannel;
     private SeekableByteChannel src;
@@ -40,7 +40,7 @@ public class MTSDemuxer {
         return pkt;
     }
     
-    public MTSDemuxer(final SeekableByteChannel nSrc) throws IOException {
+    public TS2ESConverter(final SeekableByteChannel nSrc) throws IOException {
         src = nSrc;
     }
     

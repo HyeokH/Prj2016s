@@ -1,54 +1,3 @@
-
-/*
-package com.example.prj2016s;
-
-import android.app.Activity;
-import net.majorkernelpanic.streaming.SessionBuilder;
-import net.majorkernelpanic.streaming.gl.SurfaceView;
-import net.majorkernelpanic.streaming.rtsp.RtspServer;
-import android.content.Intent;
-import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.view.WindowManager;
-
-
-
-public class MainActivity extends Activity {
-
-    private final static String TAG = "MainActivity";
-
-    private SurfaceView mSurfaceView;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        mSurfaceView = (SurfaceView) findViewById(R.id.surface);
-
-        // Sets the port of the RTSP server to 1234
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString(RtspServer.KEY_PORT, String.valueOf(1234));
-        editor.commit();
-
-        // Configures the SessionBuilder
-        SessionBuilder.getInstance()
-                .setSurfaceView(mSurfaceView)
-                .setPreviewOrientation(90)
-                .setContext(getApplicationContext())
-                .setAudioEncoder(SessionBuilder.AUDIO_NONE)
-                .setVideoEncoder(SessionBuilder.VIDEO_H264);
-
-        // Starts the RTSP server
-        this.startService(new Intent(this,RtspServer.class));
-
-    }
-}
-*/
 package com.example.prj2016s;
 
 import java.util.regex.Matcher;
@@ -91,7 +40,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public class MainActivity extends Activity implements
+public class RTSPClientInterface extends Activity implements
         OnClickListener,
         RtspClient.Callback,
         Session.Callback,
@@ -117,10 +66,6 @@ public class MainActivity extends Activity implements
     private ProgressBar mProgressBar;
     private Session mSession;
     private RtspClient mClient;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
     private GoogleApiClient client;
 
     @Override
@@ -157,9 +102,9 @@ public class MainActivity extends Activity implements
         mButtonSettings.setOnClickListener(this);
         mButtonFlash.setTag("off");
 
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(RTSPClientInterface.this);
         if (mPrefs.getString("uri", null) != null) mLayoutServerSettings.setVisibility(View.GONE);
-       // mEditTextURI.setText(mPrefs.getString("uri", getString(R.string.default_stream)));
+        // mEditTextURI.setText(mPrefs.getString("uri", getString(R.string.default_stream)));
         mEditTextURI.setText(mPrefs.getString("uri", "rtsp://wowzaipaddress:1935/live/test.stream"));
         mEditTextPassword.setText(mPrefs.getString("password", ""));
         mEditTextUsername.setText(mPrefs.getString("username", ""));
@@ -228,7 +173,7 @@ public class MainActivity extends Activity implements
                 break;
             case R.id.settings:
                 if (mLayoutVideoSettings.getVisibility() == View.GONE &&
-                        mLayoutServerSettings.getVisibility() == View.GONE) {
+                    mLayoutServerSettings.getVisibility() == View.GONE) {
                     mLayoutServerSettings.setVisibility(View.VISIBLE);
                 } else {
                     mLayoutServerSettings.setVisibility(View.GONE);
@@ -287,7 +232,7 @@ public class MainActivity extends Activity implements
             String ip, port, path;
 
             // We save the content user inputs in Shared Preferences
-            SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+            SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(RTSPClientInterface.this);
             Editor editor = mPrefs.edit();
             editor.putString("uri", mEditTextURI.getText().toString());
             editor.putString("password", mEditTextPassword.getText().toString());
@@ -316,7 +261,7 @@ public class MainActivity extends Activity implements
     private void logError(final String msg) {
         final String error = (msg == null) ? "Error unknown" : msg;
         // Displays a popup to report the eror to the user
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(RTSPClientInterface.this);
         builder.setMessage(msg).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             }
