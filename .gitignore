@@ -34,11 +34,7 @@ captures/
 
 # Intellij
 *.iml
-.idea/workspace.xml
-.idea
+.idea/*
 
 # Keystore files
 *.jks
-app/libs/
-app/src/main/res/drawable/
-libstreaming/
