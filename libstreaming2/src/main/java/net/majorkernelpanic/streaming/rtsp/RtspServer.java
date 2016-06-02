@@ -126,7 +126,7 @@ public class RtspServer extends Service {
 					if (cl == listener) return;
 				}
 			}
-			mListeners.add(listener);			
+			mListeners.add(listener);
 		}
 	}
 
@@ -136,11 +136,11 @@ public class RtspServer extends Service {
 	 */
 	public void removeCallbackListener(CallbackListener listener) {
 		synchronized (mListeners) {
-			mListeners.remove(listener);				
+			mListeners.remove(listener);
 		}
 	}
 
-	/** Returns the port used by the RTSP server. */	
+	/** Returns the port used by the RTSP server. */
 	public int getPort() {
 		return mPort;
 	}
@@ -263,7 +263,7 @@ public class RtspServer extends Service {
 					mRestart = true;
 					start();
 				}
-			}		
+			}
 			else if (key.equals(KEY_ENABLED)) {
 				mEnabled = sharedPreferences.getBoolean(KEY_ENABLED, mEnabled);
 				start();
@@ -291,7 +291,7 @@ public class RtspServer extends Service {
 				}
 			}			
 		}
-	}	
+	}
 	
 	protected void postError(Exception exception, int id) {
 		synchronized (mListeners) {

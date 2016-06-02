@@ -1,9 +1,8 @@
-package com.example.prj2016s;
+package com.example.prj2016s.Example;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.majorkernelpanic.streaming.MediaStream;
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
 import net.majorkernelpanic.streaming.audio.AudioQuality;
@@ -36,18 +35,19 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.prj2016s.R;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public class RTSPClientInterface extends Activity implements
+public class Example_RTSPClientInterface extends Activity implements
         OnClickListener,
         RtspClient.Callback,
         Session.Callback,
         SurfaceHolder.Callback,
         OnCheckedChangeListener {
 
-    public final static String TAG = "MainActivity";
+    public final static String TAG = "Example_RTSPClientInterface";
 
     private Button mButtonSave;
     private Button mButtonVideo;
@@ -102,7 +102,7 @@ public class RTSPClientInterface extends Activity implements
         mButtonSettings.setOnClickListener(this);
         mButtonFlash.setTag("off");
 
-        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(RTSPClientInterface.this);
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(Example_RTSPClientInterface.this);
         if (mPrefs.getString("uri", null) != null) mLayoutServerSettings.setVisibility(View.GONE);
         // mEditTextURI.setText(mPrefs.getString("uri", getString(R.string.default_stream)));
         mEditTextURI.setText(mPrefs.getString("uri", "rtsp://wowzaipaddress:1935/live/test.stream"));
@@ -232,7 +232,7 @@ public class RTSPClientInterface extends Activity implements
             String ip, port, path;
 
             // We save the content user inputs in Shared Preferences
-            SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(RTSPClientInterface.this);
+            SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(Example_RTSPClientInterface.this);
             Editor editor = mPrefs.edit();
             editor.putString("uri", mEditTextURI.getText().toString());
             editor.putString("password", mEditTextPassword.getText().toString());
@@ -261,7 +261,7 @@ public class RTSPClientInterface extends Activity implements
     private void logError(final String msg) {
         final String error = (msg == null) ? "Error unknown" : msg;
         // Displays a popup to report the eror to the user
-        AlertDialog.Builder builder = new AlertDialog.Builder(RTSPClientInterface.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(Example_RTSPClientInterface.this);
         builder.setMessage(msg).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             }
