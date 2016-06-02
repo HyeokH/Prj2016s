@@ -22,17 +22,19 @@ public class M3u8Manager {
         String highURL = lName[0]+"/"+lName[0]+"_high/"+lName[0]+"_high.m3u8";
         String midURL = lName[0]+"/"+lName[0]+"_mid/"+lName[0]+"_mid.m3u8";
         String lowURL = lName[0]+"/"+lName[0]+"_low/"+lName[0]+"_low.m3u8";
+        String MasterURL = lName[0]+"/"+lName[0]+".m3u8";
 
         HttpDownload.httpGet(highURL, path+"\\"+lName[0]+"\\");
         HttpDownload.httpGet(midURL, path+"\\"+lName[0]+"\\");
         HttpDownload.httpGet(lowURL, path+"\\"+lName[0]+"\\");
+        HttpDownload.httpGet(MasterURL, path+"\\"+lName[0]+"\\");
     }
     public static void main(String[] args) throws IOException{
         //bandwidth濡� 怨�, 以�, �� �뙋�떒
         //location怨� m3u8�뙆�씪 ts �뙆�씪 留ㅻ땲���뿉寃� �쟾�떖
         String[] name = args[0].split("\\.", 0);
         TsFile test;
-//		getM3u8(args[0]);
+        getM3u8(args[0]);
 
         TsManager tt = new TsManager(path+"\\"+name[0], name[0]);
         tt.findTs((float)15.687);

@@ -26,12 +26,18 @@ public class TsManager {
         int currBand = 30000; //temporary
 
         //whether it is in low bandwidth or ~
-        if (currBand <= bandwidth[0])
+        if (currBand <= bandwidth[0]){
             tsList = lowList;
-        else if(currBand >= bandwidth[2])
+            System.out.println("current bandwidth is in low region");
+        }
+        else if(currBand >= bandwidth[2]){
             tsList = highList;
-        else
+            System.out.println("current bandwidth is in high region");
+        }
+        else{
             tsList = midList;
+            System.out.println("current bandwidth is in mid region");
+        }
 
         TsFile curr;
         int i;
@@ -66,16 +72,18 @@ public class TsManager {
                 line = brMaster.readLine();
                 if (line==null) break;
                 else{
-                    if ((bandIndex = line.indexOf("BANDWIDTH="))!=-1){
+                    bandIndex = line.indexOf("BANDWIDTH=");
+                    if (bandIndex != -1){
+//	            	if ((bandIndex = line.indexOf("BANDWIDTH="))!=-1){
                         line = line.substring(bandIndex+10, line.length());
                         for(k=0; ;){
-                            if (line.charAt(k)>=80 && line.charAt(k)<=89)
+                            if (line.charAt(k)>=48 && line.charAt(k)<=57)
                                 k++;
                             else{
                                 break;
                             }
                         }
-                        line = line.substring(0, k+1);
+                        line = line.substring(0, k);
                         bandwidth[bandCount++] = Integer.parseInt(line);
                         if (bandCount >= 3)
                             break;
@@ -92,7 +100,10 @@ public class TsManager {
                         bandwidth[l+1] = swap;
                     }
                 }
-            }
+            }/*
+			for(k=0; k<2; k++){
+				System.out.println(bandwidth[k]);
+			}*/
         }
         catch(Exception e){
             System.out.println("There is no bandwidth definition.");
@@ -120,7 +131,6 @@ public class TsManager {
             br.close();
             lTime = 0;
             br = new BufferedReader(new FileReader(pathInDev+"\\"+f+"_mid.m3u8"));
-            System.out.println(pathInDev+"\\"+f+"_mid.m3u8");
             midList = new ArrayList<TsFile>();
             for(int i=0; i < 5; i++)
                 line = br.readLine();
@@ -140,7 +150,6 @@ public class TsManager {
             br.close();
             lTime = 0;
             br = new BufferedReader(new FileReader(pathInDev+"\\"+f+"_low.m3u8"));
-            System.out.println(pathInDev+"\\"+f+"_low.m3u8");
             lowList = new ArrayList<TsFile>();
             for(int i=0; i < 5; i++)
                 line = br.readLine();
