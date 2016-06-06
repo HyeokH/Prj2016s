@@ -3,11 +3,12 @@ package com.example.prj2016s.Manager;
 /**
  * Created by Kang on 2016-06-02.
  */
-import java.io.BufferedOutputStream;
+import android.util.Log;
+
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -22,7 +23,8 @@ public class HttpDownload {
 
 // parameter url -> "http://52.79.138.33/url"
 // parameter dir -> a directory in the device(where the file will be saved)
-    private static void download(String url, String dir) {
+
+    private static void download(String url, String dir){
         int sIndex = url.lastIndexOf('/');
         int pIndex = url.lastIndexOf('.');
 
@@ -31,7 +33,7 @@ public class HttpDownload {
         if (pIndex >= 1 && sIndex >= 0
                 && sIndex < url.length() - 1) {
 
-            OutputStream outStream = null;
+            FileOutputStream outStream = null;
             URLConnection uCon = null;
             InputStream is = null;
             try {
@@ -40,8 +42,8 @@ public class HttpDownload {
                 int byteRead;
                 int byteWritten = 0;
                 Url = new URL(url);
-                outStream = new BufferedOutputStream(new FileOutputStream(
-                        dir + fileName));
+                File filePointer = new File(dir+"/"+fileName);
+                outStream = new FileOutputStream(filePointer);
                 uCon = Url.openConnection();
                 is = uCon.getInputStream();
                 buf = new byte[size];
@@ -51,30 +53,19 @@ public class HttpDownload {
                 }
                 System.out.println(fileName);
                 System.out.println(byteWritten+" bytes");
+                is.close();
+                outStream.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    is.close();
-                    outStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
-    /**
-     *
-     * @param url
-     * @param dir
-     */
 
-    public static void httpGet(String filename, String path){
+    public static void httpGet(String filename, String path) throws IOException {
 
         String url = "http://52.79.138.33/";
         download(url+filename, path);
     }
-
 
 }
 
