@@ -36,7 +36,7 @@
     <TextView android:id = "@+id/textView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello"
+        android:text="hello"
         android:layout_below="@+id/videoView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"

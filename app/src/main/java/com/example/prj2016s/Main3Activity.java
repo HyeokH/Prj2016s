@@ -48,10 +48,13 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
             // 카메라 객체의 파라메터를 얻고 로테이션을 90도 꺽는다
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setRotation(90);
+            Log.e("CAM TEST", "asdfasdf1111" + parameters.toString());
             mCamera.setParameters(parameters);
+            Log.e("CAM TEST", "asdfasdf2222" + parameters.toString());
             // 프리뷰 디스플레이를 담당한 서피스 홀더를 설정한다
             mCamera.setPreviewDisplay(holder);
             // 프리뷰 콜백을 설정한다 - 프레임 설정이 가능하다,
+            Log.e("CAM TEST", "asdfasdf3333");
   /* mCamera.setPreviewCallback(new PreviewCallback() {
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
@@ -60,6 +63,8 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
    });
    */
         } catch (Exception e) {
+            Log.e("CAM TEST","asdfasdfParams???!!!");
+            e.printStackTrace();
             // TODO: handle exception
         }
     }
@@ -166,6 +171,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         Log.e("CAM TEST","#1 Begin REC!!!");
         if(recorder!= null)
         {
+            Log.e("CAM TEST","RECORDER RELEASE");
             recorder.stop();
             recorder.release();
         }
@@ -178,33 +184,34 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         File outFile = new File(OUTPUT_FILE);
         if (outFile.exists())
         {
+            Log.e("CAM TEST","OUTPUT FILE OVERLAP");
             outFile.delete();
         }
         Log.e("CAM TEST","#3 Release Camera!!!");
         if (mCamera != null){
+            Log.e("CAM TEST","#3 Release Camera  _---> OK!!!");
             mCamera.stopPreview();
             mCamera.release();
             mCamera=null;
-            Log.e("CAM TEST","#3 Release Camera  _---> OK!!!");
         }
-
         try {
             recorder = new MediaRecorder();
+            Log.e("CAM TEST","#4 TRY");
             // Video/Audio 소스 설정
             recorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-            // 비디오 사이즈를 수정하면 prepare 에러가 난다, 왜 그럴까? -> 특정 해상도가 있으며 이 해상도에만 맞출 수가 있다
+//             비디오 사이즈를 수정하면 prepare 에러가 난다, 왜 그럴까? -> 특정 해상도가 있으며 이 해상도에만 맞출 수가 있다
             recorder.setVideoSize(800, 480);
             recorder.setVideoFrameRate(25);
-            // Video/Audio 인코더 설정
+//             Video/Audio 인코더 설정
             recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            // 녹화 시간 한계 , 10초
+//             녹화 시간 한계 , 10초
             recorder.setMaxDuration(RECORDING_TIME);
-            // 프리뷰를 보여줄 서피스 설정
+//             프리뷰를 보여줄 서피스 설정
             recorder.setPreviewDisplay(holder.getSurface());
-            // 녹화할 대상 파일 설정
+//             녹화할 대상 파일 설정
             recorder.setOutputFile(OUTPUT_FILE);
             recorder.prepare();
             recorder.start();
