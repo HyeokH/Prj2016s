@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -24,6 +25,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         }
         if (recorder != null){
             recorder.stop();
+            recorder.reset();
             recorder.release();
             recorder = null;
         }
@@ -36,7 +38,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
     // 레코더 객체 생성
     private MediaRecorder recorder = null;
     // 아웃풋 파일 경로
-    private static final String OUTPUT_FILE = "/sdcard/videooutput.mp4";
+    private static final String OUTPUT_FILE = Environment.getExternalStorageDirectory().getAbsolutePath()+"/video_output.mp4";
     // 녹화 시간 - 10초
     private static final int RECORDING_TIME = 10000;
 
@@ -46,11 +48,11 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
             // 카메라 객체를 만든다
             mCamera = Camera.open();
             // 카메라 객체의 파라메터를 얻고 로테이션을 90도 꺽는다
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setRotation(90);
-            Log.e("CAM TEST", "asdfasdf1111" + parameters.toString());
-            mCamera.setParameters(parameters);
-            Log.e("CAM TEST", "asdfasdf2222" + parameters.toString());
+//            Camera.Parameters parameters = mCamera.getParameters();
+//            parameters.setRotation(90);
+//            Log.e("CAM TEST", "asdfasdf1111" + parameters.toString());
+//            mCamera.setParameters(parameters);
+//            Log.e("CAM TEST", "asdfasdf2222" + parameters.toString());
             // 프리뷰 디스플레이를 담당한 서피스 홀더를 설정한다
             mCamera.setPreviewDisplay(holder);
             // 프리뷰 콜백을 설정한다 - 프레임 설정이 가능하다,
@@ -82,14 +84,14 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         // TODO Auto-generated method stub
         // 서피스 변경되었을 때의 대응 루틴
         if (mCamera !=null){
-            Camera.Parameters parameters = mCamera.getParameters();
+//            Camera.Parameters parameters = mCamera.getParameters();
             // 프리뷰 사이즈 값 재조정
-            parameters.setPreviewSize(width,height);
-            mCamera.setParameters(parameters);
+//            parameters.setPreviewSize(width,height);
+//            mCamera.setParameters(parameters);
             // 프리뷰 다시 시작
             mCamera.startPreview();
         }
-    }
+        }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -150,6 +152,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
                 if ( recorder !=null){
                     Log.e("CAM TEST","CAMERA STOP!!!!!");
                     recorder.stop();
+                    recorder.reset();
                     recorder.release();
                     recorder = null;
                 }
@@ -173,6 +176,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         {
             Log.e("CAM TEST","RECORDER RELEASE");
             recorder.stop();
+            recorder.reset();
             recorder.release();
         }
         String state = android.os.Environment.getExternalStorageState();
