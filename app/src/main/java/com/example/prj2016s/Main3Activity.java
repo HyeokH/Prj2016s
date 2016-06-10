@@ -45,7 +45,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         try {
             // 카메라 객체를 만든다
             mCamera = Camera.open();
-            // 카메라 객체의 파라메터를 얻고 로테이션을 90도 꺽는다
+            // 카메라 객체의 파라미터를 얻고 로테이션을 90도 꺽는다
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setRotation(90);
             Log.e("CAM TEST", "asdfasdf1111" + parameters.toString());
