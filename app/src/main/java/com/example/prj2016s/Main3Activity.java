@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -38,6 +39,7 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
     // 레코더 객체 생성
     private MediaRecorder recorder = null;
     // 아웃풋 파일 경로
+ //   private final String OUTPUT_FILE = this.getFilesDir().getAbsolutePath()+"/test/video_output.mp4";
     private static final String OUTPUT_FILE = Environment.getExternalStorageDirectory().getAbsolutePath()+"/video_output.mp4";
     // 녹화 시간 - 10초
     private static final int RECORDING_TIME = 10000;
@@ -199,6 +201,16 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
             mCamera=null;
         }
         try {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int deviceHeight = displayMetrics.widthPixels;
+            int deviceWidth = displayMetrics.heightPixels;
+            Log.d("width", Integer.toString(deviceWidth));
+            Log.d("height", Integer.toString(deviceHeight));
+
+// 꼭 넣어 주어야 한다. 이렇게 해야 displayMetrics가 세팅이 된다.
+
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             recorder = new MediaRecorder();
             Log.e("CAM TEST","#4 TRY");
             // Video/Audio 소스 설정
@@ -206,8 +218,8 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 //             비디오 사이즈를 수정하면 prepare 에러가 난다, 왜 그럴까? -> 특정 해상도가 있으며 이 해상도에만 맞출 수가 있다
-            recorder.setVideoSize(800, 480);
-            recorder.setVideoFrameRate(25);
+            recorder.setVideoSize(deviceWidth, deviceHeight);
+            recorder.setVideoFrameRate(100);
 //             Video/Audio 인코더 설정
             recorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
