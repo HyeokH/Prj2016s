@@ -186,6 +186,10 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback {
         // 파일 생성/초기화
         Log.e("CAM TEST","#2 Create File!!!");
         File outFile = new File(OUTPUT_FILE);
+//        Date dNow = new Date( );
+//        SimpleDateFormat ft = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
+//        String output_path = OUTPUT_FILE + ft.format(dNow);
+//        File outFile = new File(outFile);
         if (outFile.exists())
         {
             Log.e("CAM TEST","OUTPUT FILE OVERLAP");
