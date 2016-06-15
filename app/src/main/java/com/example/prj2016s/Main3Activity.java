@@ -14,7 +14,17 @@ import android.view.SurfaceHolder;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.impl.client.DefaultHttpClient;
+//
 import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.IOException;
+//import org.apache.commons.net.ftp.FTP;
+//import org.apache.commons.net.ftp.FTPClient;
+//import android.util.Log;
+
+
 
 public class Main3Activity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback {
     @Override
@@ -56,6 +66,17 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback, C
     SurfaceHolder mHolder = null;
     TextView textView = null;
 
+    /*********  work only for Dedicated IP ***********/
+    static final String FTP_HOST= "50.63.92.56";
+
+    /*********  FTP USERNAME ***********/
+    static final String FTP_USER = "XXXXXX";
+
+    /*********  FTP PASSWORD ***********/
+    static final String FTP_PASS  ="XXXXXXX";
+
+    File f = new File("android.resource://" + getPackageName() + "/" + R.raw.kitty);
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +114,32 @@ public class Main3Activity extends Activity implements SurfaceHolder.Callback, C
 
         mHolder.addCallback(this);
     }
+
+/*    public void uploadFile(File fileName){
+
+        HttpClient client2 = new DefaultHttpClient();
+        FTPClient client = new FTPClient();
+
+        try {
+
+            client.connect(FTP_HOST,21);
+            client.login(FTP_USER, FTP_PASS);
+            client.setType(FTPClient.TYPE_BINARY);
+            client.changeDirectory("/upload/");
+
+            client.upload(fileName, new MyTransferListener());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                client.disconnect(true);
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+
+    }
+    */
 
     // 카메라 프리뷰를 설정한다
 //    private void setCameraPreview(SurfaceHolder holder){

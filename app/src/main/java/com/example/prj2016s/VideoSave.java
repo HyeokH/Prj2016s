@@ -73,7 +73,7 @@ public class VideoSave extends Activity
     int mIth = 0;
 
     protected void startIntervalRecording() {
-        mTimer = new CountDownTimer(20000, 1000) {
+        mTimer = new CountDownTimer(10000, 1000) {
             boolean recordStart = false;
 
             public void onTick(long millisUntilFinished) {
