@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -23,10 +22,7 @@
             </intent-filter>
         </activity>
 
-        <!--
-        <service android:enabled="true" android:name=".RtspServer.RtspServerService" />
-        -->
-        <service android:enabled="true" android:name=".RtspServer.lib.RtspServer" />
+        <!--<service android:name=".RtspPlayer.RtspPlayerService" />-->
 
         <!--ATTENTION: This was auto-generated to add Google Play services to your project for
              App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information.

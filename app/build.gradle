@@ -11,6 +11,13 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    sourceSets {
+        main {
+            java {
+                exclude '**/uncompilable/**'
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

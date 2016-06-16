@@ -1,4 +1,4 @@
-package com.example.prj2016s;
+package com.example.prj2016s.uncompilable;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+
+import com.example.prj2016s.R;
 
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;

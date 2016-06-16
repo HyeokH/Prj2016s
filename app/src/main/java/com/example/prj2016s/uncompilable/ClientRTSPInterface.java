@@ -1,11 +1,9 @@
-package com.example.prj2016s.Example;
+package com.example.prj2016s.uncompilable;
+
 
 import android.app.Activity;
-import net.majorkernelpanic.streaming.SessionBuilder;
-import net.majorkernelpanic.streaming.gl.SurfaceView;
-import net.majorkernelpanic.streaming.rtsp.RtspServer;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,10 +11,14 @@ import android.view.WindowManager;
 
 import com.example.prj2016s.R;
 
+import net.majorkernelpanic.streaming.SessionBuilder;
+import net.majorkernelpanic.streaming.gl.SurfaceView;
+import net.majorkernelpanic.streaming.rtsp.RtspServer;
 
-public class Example_ClientRTSPInterface extends Activity {
-
-    private final static String TAG = "Example_ClientRTSPInterface";
+/**
+ * Created by 성혁화 on 2016-06-02.
+ */
+public class ClientRTSPInterface extends Activity {
 
     private SurfaceView mSurfaceView;
 
@@ -30,7 +32,7 @@ public class Example_ClientRTSPInterface extends Activity {
         mSurfaceView = (SurfaceView) findViewById(R.id.surface);
 
         // Sets the port of the RTSP server to 1234
-        Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putString(RtspServer.KEY_PORT, String.valueOf(1234));
         editor.commit();
 
@@ -44,6 +46,5 @@ public class Example_ClientRTSPInterface extends Activity {
 
         // Starts the RTSP server
         this.startService(new Intent(this,RtspServer.class));
-
     }
 }
