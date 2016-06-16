@@ -42,3 +42,6 @@ captures/
 
 # manifest file
 app/src/main/AndroidManifest.xml
+
+# raw directory
+app/src/main/res/raw/
