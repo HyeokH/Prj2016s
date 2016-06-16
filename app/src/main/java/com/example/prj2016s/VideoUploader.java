@@ -5,14 +5,11 @@ import android.content.Context;
 import android.os.Bundle;
 
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Created by NAM on 2016. 6. 15..
@@ -32,7 +29,7 @@ public class VideoUploader extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
         try {
-            httpPost("asdf","asdf");
+            httpPost("video_output", 3, "android.resource://" + getPackageName() + "/" + R.raw.sample1);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,7 +75,7 @@ public class VideoUploader extends Activity {
         }
     }
 
-/* filename_at_server is the name for the file would be saved at server (for example, video_output0 video_output1 video_output2) */
+/* filename_at_server is the name for the file would be saved at server (for example, video_output) */
 /* filepath_at_client is a path including filename in the client (for example, "android.resource://" + getPackageName() + "/" + R.raw.kitty) */
 
     public void httpPost(String filename_at_server, Integer mIth, String filepath_at_client) throws IOException {
