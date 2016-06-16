@@ -12,6 +12,17 @@ import android.util.*;
 import android.os.*;
 import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 import java.io.*;
 public class VideoSave extends Activity
         implements SurfaceHolder.Callback, Handler.Callback
@@ -31,6 +42,9 @@ public class VideoSave extends Activity
     private CountDownTimer mTimer = null;
     private String OUTPUT_FILE;
     private Camera mCamera = null;
+    private int mIth = 0;
+    private String OUTPUT_PATH;
+    private AsyncTask task = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -51,8 +65,8 @@ public class VideoSave extends Activity
         //handler
         mHandler = new Handler(this);
         mToaster = new Handler(this);
-//        OUTPUT_FILE = this.getFilesDir().getAbsolutePath()+"/recorded";
-        OUTPUT_FILE = Environment.getExternalStorageDirectory().getAbsolutePath()+"/video_output";
+        OUTPUT_FILE = this.getFilesDir().getAbsolutePath()+"/recorded";
+//        OUTPUT_FILE = Environment.getExternalStorageDirectory().getAbsolutePath()+"/video_output";
     }
     @Override
     public void onResume() {
@@ -70,10 +84,8 @@ public class VideoSave extends Activity
         releaseMediaRecorder();
     }
 
-    int mIth = 0;
-
     protected void startIntervalRecording() {
-        mTimer = new CountDownTimer(10000, 1000) {
+        mTimer = new CountDownTimer(20000, 1000) {
             boolean recordStart = false;
 
             public void onTick(long millisUntilFinished) {
@@ -103,20 +115,34 @@ public class VideoSave extends Activity
         mMediaRecorder.setCamera(mCamera);
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-//        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-//     mMediaRecorder.setMaxDuration(200000);
-        mMediaRecorder.setOutputFile(OUTPUT_FILE + mIth + ".mp4");
-//        Toast.makeText(this, "중계중 "+ Integer.toString(mIth*10) +"초" ,Toast.LENGTH_SHORT);
+//        mMediaRecorder.setMaxDuration(200000);
+        if (mIth == 0){}
+        else{
+            if (mIth%2 == 1){
+                //저장된 파일은 0번
+                OUTPUT_PATH = OUTPUT_FILE + "0.mp4";
+            }
+            else {
+                //저장된 파일은 1번
+                OUTPUT_PATH = OUTPUT_FILE + "1.mp4";
+            }
+            new AsyncCallWS().execute();
+        }
+        mMediaRecorder.setOutputFile(OUTPUT_FILE+Integer.toString(mIth%2)+".mp4");
         mToaster.post(new Runnable(){
             public void run(){
-                Toast.makeText(getApplicationContext(), "중계중("+Integer.toString(mIth*10)+"초)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "중계중("+Integer.toString(mIth++*20)+"초)", Toast.LENGTH_SHORT).show();
             }
         });
-        mIth++;
-//        mMediaRecorder.setVideoFrameRate(16);
-//        mMediaRecorder.setVideoSize(1920,1080);
+/*        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        mMediaRecorder.setVideoFrameRate(16);
+        mMediaRecorder.setVideoSize(1280,720); */
         mMediaRecorder.setOrientationHint(90);
+//        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
         CamcorderProfile profile = null;
+/*
         if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P)) {
             Log.d("profile", "1");
             profile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P);
@@ -132,12 +158,11 @@ public class VideoSave extends Activity
         else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
             Log.d("profile", "4");
             profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-        }
+        }*/
 
+        Log.d("profile", "QUALITY LOW");
+        profile = CamcorderProfile.get(CamcorderProfile.QUALITY_LOW);
         mMediaRecorder.setProfile(profile);
-
-//        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
 //        mMediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
         try {
@@ -173,6 +198,35 @@ public class VideoSave extends Activity
             Log.v(TAG, "Record Stopped");
         }
     }
+
+private class AsyncCallWS extends AsyncTask<Void, Void, Void> {
+    @Override
+    protected Void doInBackground(Void... params) {
+        Log.i(TAG, "doInBackground");
+        try {
+            uploadVideo(OUTPUT_PATH);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void result) {
+        Log.i(TAG, "onPostExecute");
+    }
+
+    @Override
+    protected void onPreExecute() {
+        Log.i(TAG, "onPreExecute");
+    }
+
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        Log.i(TAG, "onProgressUpdate");
+    }
+}
+
 
 
     //--------------------------------------------------------------------
@@ -230,5 +284,43 @@ public class VideoSave extends Activity
                 return true;
         }
         return false;
+    }
+
+    private void uploadVideo(String videoPath) throws ParseException, IOException {
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost("http://52.79.138.33/video_upload");
+        String fileName = "streaming.mp4";
+
+        FileBody filebodyVideo = new FileBody(new File(videoPath));
+        StringBody title = new StringBody(fileName);
+        StringBody description = new StringBody("This is a video of the agent");
+//        StringBody code = new StringBody(realtorCodeStr);
+        int currNum = (mIth-1);
+
+        MultipartEntity reqEntity = new MultipartEntity();
+        reqEntity.addPart("videoFile", filebodyVideo);
+        reqEntity.addPart("title", title);
+        reqEntity.addPart("description", description);
+        //      reqEntity.addPart("code", code);
+        httppost.setEntity(reqEntity);
+
+        // DEBUG
+        System.out.println( "executing request " + httppost.getRequestLine( ) );
+        HttpResponse response = httpclient.execute( httppost );
+        Log.i(TAG, Integer.toString(currNum)+"번째 영상 업로드!");
+        HttpEntity resEntity = response.getEntity( );
+
+        // DEBUG
+        System.out.println( response.getStatusLine( ) );
+        if (resEntity != null) {
+            System.out.println( EntityUtils.toString( resEntity ) );
+        } // end if
+
+        if (resEntity != null) {
+            resEntity.consumeContent( );
+        } // end if
+
+        httpclient.getConnectionManager( ).shutdown( );
     }
 }

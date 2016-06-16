@@ -5,7 +5,7 @@ package com.example.prj2016s.RtspServer;
  */
 import java.util.*;
 
-public class RTPpacket{
+public class RTPpacket {
 
     //size of the RTP header:
     static int HEADER_SIZE = 12;
