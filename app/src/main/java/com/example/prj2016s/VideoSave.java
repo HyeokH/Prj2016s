@@ -103,7 +103,7 @@ public class VideoSave extends Activity
         mMediaRecorder.setCamera(mCamera);
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+//        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 //     mMediaRecorder.setMaxDuration(200000);
         mMediaRecorder.setOutputFile(OUTPUT_FILE + mIth + ".mp4");
 //        Toast.makeText(this, "중계중 "+ Integer.toString(mIth*10) +"초" ,Toast.LENGTH_SHORT);
@@ -113,11 +113,32 @@ public class VideoSave extends Activity
             }
         });
         mIth++;
-        mMediaRecorder.setVideoFrameRate(16);
-        mMediaRecorder.setVideoSize(1920,1080);
+//        mMediaRecorder.setVideoFrameRate(16);
+//        mMediaRecorder.setVideoSize(1920,1080);
         mMediaRecorder.setOrientationHint(90);
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        CamcorderProfile profile = null;
+        if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_1080P)) {
+            Log.d("profile", "1");
+            profile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P);
+        }
+        else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_720P)) {
+            Log.d("profile", "2");
+            profile = CamcorderProfile.get(CamcorderProfile.QUALITY_720P);
+        }
+        else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_480P)) {
+            Log.d("profile", "3");
+            profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+        }
+        else if (CamcorderProfile.hasProfile(CamcorderProfile.QUALITY_HIGH)) {
+            Log.d("profile", "4");
+            profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        }
+
+        mMediaRecorder.setProfile(profile);
+
+//        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP);
+//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
 //        mMediaRecorder.setPreviewDisplay(mSurfaceHolder.getSurface());
         try {
             mMediaRecorder.prepare();
