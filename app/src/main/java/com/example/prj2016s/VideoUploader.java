@@ -19,15 +19,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.util.EntityUtils;
 
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 
 /**
  * Created by NAM on 2016. 6. 15..
@@ -47,6 +40,9 @@ public class VideoUploader extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main3);
+        File in = new File(this.getFilesDir().getAbsolutePath()+"/recorded0.mp4");
+        if (in.exists()) Log.i(TAG, "inner file Exist!");
+        testStr = this.getFilesDir().getAbsolutePath()+"/recorded0.mp4";
         AsyncCallWS task = new AsyncCallWS();
         task.execute();
     }
@@ -123,7 +119,7 @@ public class VideoUploader extends Activity {
     private void uploadVideo(String videoPath) throws ParseException, IOException {
 
         HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost("http://52.79.138.33/video_upload/video_output/1");
+        HttpPost httppost = new HttpPost("http://52.79.138.33/video_upload");
         int sIndex = videoPath.lastIndexOf('/');
         String fileName = videoPath.substring(sIndex + 1);
 
