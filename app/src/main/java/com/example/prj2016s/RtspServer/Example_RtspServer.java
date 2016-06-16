@@ -86,9 +86,12 @@ public class Example_RtspServer extends Activity implements
                     //mVideoView.setVideoPath("rtsp://ebsonairandaod.ebs.co.kr/fmradiobandiaod/bandiappaac");
 
 
+                    //mVideoView.setVideoPath("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
+
                     //mClient.startStream();
 
-                    mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
+                    mVideoView.setVideoPath("rtsp://10.0.2.2:8086");
+                    //mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
                     mVideoView.requestFocus();
                     mVideoView.start();
 
