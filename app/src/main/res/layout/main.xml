@@ -70,9 +70,7 @@ tools:context=".uncompilable.Example.Example_ClientRTSPInterface" >
     </LinearLayout>
 </FrameLayout>
 
-<include layout="@layout/video_settings" />
-
-<include layout="@layout/server_settings" />
+    <include layout="@layout/content_main3" />
 
 <FrameLayout
     android:layout_width="match_parent"

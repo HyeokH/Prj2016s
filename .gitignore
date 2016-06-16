@@ -25,6 +25,7 @@ proguard/
 
 # Log Files
 *.log
+log.txt
 
 # Android Studio Navigation editor temp files
 .navigation/
@@ -38,4 +39,9 @@ captures/
 
 # Keystore files
 *.jks
-/app/src/main/res/sample_vidio/
+
+# manifest file
+app/src/main/AndroidManifest.xml
+
+# raw directory
+app/src/main/res/raw/

@@ -1,4 +1,13 @@
 package com.example.prj2016s.Manager;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.util.Log;
+import android.widget.Toast;
+
+
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
@@ -19,12 +28,28 @@ public class TsManager {
 
     public TsManager(){
     }
-    public String findTs(float t){
+    public String findTs(float t, Context ctx){
         ArrayList<TsFile> tsList;
+        int currBand = 30000;
         //get some bandwidth
         //this line will be replaced by WifiManager
-        int currBand = 30000; //temporary
-
+        ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = conMan.getActiveNetworkInfo();
+        if (activeNetwork != null) {
+            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                if (wifiInfo != null) {
+                    currBand = wifiInfo.getLinkSpeed();
+                    Log.d("current bandwidth", String.valueOf(currBand));
+                }
+            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                //I don't know what to do
+            }
+        } else {
+            Toast.makeText(ctx, "internet is not connected", Toast.LENGTH_SHORT).show();
+            //we have to handle this
+        }
         //whether it is in low bandwidth or ~
         if (currBand <= bandwidth[0]){
             tsList = lowList;
@@ -66,7 +91,7 @@ public class TsManager {
         String lowURL = fileName+"/"+fileName+"_low/";
 
         try {
-            BufferedReader brMaster = new BufferedReader(new FileReader(pathInDev+"\\"+f+".m3u8"));
+            BufferedReader brMaster = new BufferedReader(new FileReader(pathInDev+"/"+f+".m3u8"));
             int bandIndex, bandCount = 0, k, l;
             while(true){
                 line = brMaster.readLine();
@@ -111,7 +136,7 @@ public class TsManager {
         //find m3u8 and make array list of each m3u8
         try {
             lTime = 0;
-            BufferedReader br = new BufferedReader(new FileReader(pathInDev+"\\"+f+"_high.m3u8"));
+            BufferedReader br = new BufferedReader(new FileReader(pathInDev+"/"+f+"_high.m3u8"));
             highList = new ArrayList<TsFile>();
             for(int i=0; i < 5; i++)
                 line = br.readLine();
@@ -130,7 +155,7 @@ public class TsManager {
             }
             br.close();
             lTime = 0;
-            br = new BufferedReader(new FileReader(pathInDev+"\\"+f+"_mid.m3u8"));
+            br = new BufferedReader(new FileReader(pathInDev+"/"+f+"_mid.m3u8"));
             midList = new ArrayList<TsFile>();
             for(int i=0; i < 5; i++)
                 line = br.readLine();
@@ -149,7 +174,7 @@ public class TsManager {
             }
             br.close();
             lTime = 0;
-            br = new BufferedReader(new FileReader(pathInDev+"\\"+f+"_low.m3u8"));
+            br = new BufferedReader(new FileReader(pathInDev+"/"+f+"_low.m3u8"));
             lowList = new ArrayList<TsFile>();
             for(int i=0; i < 5; i++)
                 line = br.readLine();
