@@ -1,6 +1,7 @@
-package com.example.prj2016s.RtspPlayer;
+package com.example.prj2016s.uncompilable.RtspPlayer;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
@@ -39,11 +40,17 @@ public class Example_RtspPlayer extends Activity {
         mMediaController.setAnchorView(mVideoView);
         mVideoView.setMediaController(mMediaController);
 
-        mVideoView.setVideoPath("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
-        //mVideoView.setVideoPath("rtsp://127.0.0.1/rtp_test1");
-        //mVideoView.setVideoPath("rtsp://ebsonairandaod.ebs.co.kr/fmradiobandiaod/bandiappaac");
-        mVideoView.requestFocus();
-        mVideoView.start();
+        try {
+            Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sample1);
+            mVideoView.setVideoURI(uri);
+            //mVideoView.setVideoPath("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
+            //mVideoView.setVideoPath("rtsp://127.0.0.1/rtp_test1");
+            //mVideoView.setVideoPath("rtsp://ebsonairandaod.ebs.co.kr/fmradiobandiaod/bandiappaac");
+            mVideoView.requestFocus();
+            mVideoView.start();
+        } catch (Exception e) {
+            Log.d(TAG, String.valueOf(e));
+        }
 
         //doBindService();
     }

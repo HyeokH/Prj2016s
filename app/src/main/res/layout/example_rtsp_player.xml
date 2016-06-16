@@ -5,7 +5,22 @@
 
     <VideoView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
+        android:paddingBottom="16dp"
         android:id="@+id/videoView"
         android:layout_gravity="center_horizontal" />
+
+    <net.majorkernelpanic.streaming.gl.SurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:paddingBottom="16dp"
+        android:id="@+id/surfaceView"
+        android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:id="@+id/video"
+        android:contentDescription="video"
+        android:layout_width="200dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"/>
 </LinearLayout>

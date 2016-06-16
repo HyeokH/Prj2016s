@@ -1,4 +1,4 @@
-package com.example.prj2016s.RtspPlayer;
+package com.example.prj2016s.uncompilable.RtspPlayer;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;

@@ -1,4 +1,4 @@
-package com.example.prj2016s.Example;
+package com.example.prj2016s.uncompilable.Example;
 import com.example.prj2016s.etc.FileChannelWrapper;
 import com.example.prj2016s.TS2ESConverter;
 import com.example.prj2016s.etc.SeekableByteChannel;

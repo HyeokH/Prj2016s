@@ -1,4 +1,4 @@
-package com.example.prj2016s;
+package com.example.prj2016s.uncompilable;
 /**
  * Created by 성혁화 on 2016-06-03.
  */

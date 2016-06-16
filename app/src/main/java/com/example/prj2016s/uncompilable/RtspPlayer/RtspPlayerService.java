@@ -1,6 +1,5 @@
-package com.example.prj2016s.RtspPlayer;
+package com.example.prj2016s.uncompilable.RtspPlayer;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
@@ -11,7 +10,6 @@ import android.widget.MediaController;
 
 //import com.namh.mmsplayer.R;
 
-import java.io.IOException;
 
 /**
  * Created by namh on 2015-01-08.

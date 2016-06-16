@@ -1,4 +1,4 @@
-package com.example.prj2016s.Example;
+package com.example.prj2016s.uncompilable.Example;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
