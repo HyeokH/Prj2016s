@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
  * 
  */
 public class RtspServer extends Service {
-	public static String LOCAL_IP = "10.0.2.2";
+	public static String LOCAL_IP = "10.0.2.15";
 
 	public final static String TAG = "RtspServer";
 	public final static String HHTAG = "HyeokHwa RtspServer";
@@ -700,7 +700,7 @@ public class RtspServer extends Service {
 
 		// Write the body first so we can get the size later
 		writer2.write("v=0" + CRLF);
-		writer2.write("o=HyeokH 1234 1234 IN IP4 12.0.2.15" + CRLF);
+		writer2.write("o=HyeokH 1234 1234 IN IP4 " + "10.0.2.2" + CRLF);
 		writer2.write("s=Nonamed" + CRLF);
 		writer2.write("t=0 0" + CRLF);
 		writer2.write("m=video " + DEFAULT_VIDEO_PORT + " RTP/AVP " + MJPEG_TYPE + CRLF);

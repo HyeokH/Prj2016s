@@ -51,7 +51,7 @@ public class Example_RtspServer extends Activity implements
 
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString(RtspServer.KEY_PORT, String.valueOf(8086));
+        editor.putString(RtspServer.KEY_PORT, String.valueOf(8081));
         editor.commit();
 
         mSession = SessionBuilder.getInstance()
@@ -90,7 +90,7 @@ public class Example_RtspServer extends Activity implements
 
                     //mClient.startStream();
 
-                    mVideoView.setVideoPath("rtsp://10.0.2.2:8086");
+                    mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
                     //mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
                     mVideoView.requestFocus();
                     mVideoView.start();
