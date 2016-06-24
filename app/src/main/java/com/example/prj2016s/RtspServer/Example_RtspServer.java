@@ -1,10 +1,16 @@
 package com.example.prj2016s.RtspServer;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.Intent;
 import android.preference.PreferenceManager;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
@@ -31,7 +37,7 @@ public class Example_RtspServer extends Activity implements
     private VideoView mVideoView;
     private SurfaceView mSurfaceView;
     private MediaController mMediaController;
-    private Button mButtonVideo;
+    private Button mButtonVideo1, mButtonVideo2;
     private RtspClient mClient;
     private Session mSession;
 
@@ -41,19 +47,21 @@ public class Example_RtspServer extends Activity implements
         setContentView(R.layout.example_rtsp_player);
 
         mVideoView = (VideoView)findViewById(R.id.videoView);
-        mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView);
-        mButtonVideo = (Button) findViewById(R.id.video);
-        mButtonVideo.setOnClickListener(this);
+        //mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView);
+        mButtonVideo1 = (Button) findViewById(R.id.video1);
+        mButtonVideo1.setOnClickListener(this);
+        mButtonVideo2 = (Button) findViewById(R.id.video2);
+        mButtonVideo2.setOnClickListener(this);
 
-        mMediaController = new MediaController(this);
-        mMediaController.setAnchorView(mVideoView);
-        mVideoView.setMediaController(mMediaController);
+        //mMediaController = new MediaController(this);
+        //mMediaController.setAnchorView(mVideoView);
+        //mVideoView.setMediaController(mMediaController);
 
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString(RtspServer.KEY_PORT, String.valueOf(8081));
+        editor.putString(RtspServer.KEY_PORT, String.valueOf(8086));
         editor.commit();
-
+/*
         mSession = SessionBuilder.getInstance()
                 .setSurfaceView(mSurfaceView)
                 .setPreviewOrientation(0)
@@ -61,7 +69,7 @@ public class Example_RtspServer extends Activity implements
                 .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
                 .build();
-
+*/
 /*
         mClient = new RtspClient();
         mClient.setSession(mSession);
@@ -74,8 +82,8 @@ public class Example_RtspServer extends Activity implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.video:
-                Log.d(TAG, "onClick() video button");
+            case R.id.video1:
+                Log.d(TAG, "onClick() video1 button");
                 try {
                     //Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sample1);
 
@@ -90,10 +98,19 @@ public class Example_RtspServer extends Activity implements
 
                     //mClient.startStream();
 
-                    mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
-                    //mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
+                    //mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
+                    /*
+                    mVideoView.setVideoPath("rtsp://192.:8086");
                     mVideoView.requestFocus();
-                    mVideoView.start();
+                    mVideoView.start();*/
+                    WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo info = wManager.getConnectionInfo();
+                    String ipaddress = Formatter.formatIpAddress(info.getIpAddress());
+                    Log.i(TAG, ipaddress);
+
+                    Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("rtsp://"+ipaddress+":8086"));
+                    //                   Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("http://52.79.138.33/test/test_high/test_high_0.ts"));
+                    startActivity(i1);
 
                 } catch (Exception e) {
                     Log.d(TAG, String.valueOf(e));

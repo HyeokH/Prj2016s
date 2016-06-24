@@ -32,10 +32,9 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.example.prj2016s.R;
-import com.example.prj2016s.RtspServer.RTPpacket;
 import com.example.prj2016s.RtspServer.VideoStream;
+import com.example.prj2016s.RtspServer.lib_spy.H264Packetizer;
 
-import net.majorkernelpanic.streaming.rtp.AbstractPacketizer;
 import net.majorkernelpanic.streaming.rtsp.UriParser;
 import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
@@ -71,7 +70,7 @@ import java.util.regex.Pattern;
  * 
  */
 public class RtspServer extends Service {
-	public static String LOCAL_IP = "10.0.2.15";
+//	public static String LOCAL_IP = "10.0.2.15";
 
 	public final static String TAG = "RtspServer";
 	public final static String HHTAG = "HyeokHwa RtspServer";
@@ -94,7 +93,7 @@ public class RtspServer extends Service {
 	static int FRAME_PERIOD = 1000;
 	static int VIDEO_LENGTH = 500;
 	static int RTSP_ID = 123456;
-	static int DEFAULT_TTL = 1000000;
+	static int DEFAULT_TTL = 100;
 
 	/** Key used in the SharedPreferences for the port used by the RTSP server. */
 	public final static String KEY_PORT = "rtsp_port";
@@ -399,7 +398,11 @@ public class RtspServer extends Service {
 		byte[] buf;
 		private DatagramPacket senddp;
 		private VideoStream video;
+
+		//private MyPacketizer mPacketizer2 = null;
 		private H264Packetizer mPacketizer = null;
+//		private AACADTSPacketizer mPacketizer = null;
+//		private AACLATMPacketizer mPacketizer = null;
 
 		public WorkerThread(final Socket client) throws IOException {
 			mInput = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -408,10 +411,13 @@ public class RtspServer extends Service {
 
 			mSession = new Session();
 			mPacketizer = new H264Packetizer();
+			//mPacketizer2 = new MyPacketizer();
 			try {
-				InputStream fis = getResources().openRawResource(R.raw.sample3mb);
+				//InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_aac);
+				InputStream fis = getResources().openRawResource(R.raw.tttttoutput_h264);
 				mPacketizer.setInputStream(fis);
-				//mPacketizer.setTimeToLive(DEFAULT_TTL);
+				//mPacketizer2.setInputStream(fis);
+				mPacketizer.setTimeToLive(DEFAULT_TTL);
 			}
 			catch (Exception e) {
 				Log.e(HHTAG, "mPacketizer : " + e.getMessage());
@@ -498,7 +504,7 @@ public class RtspServer extends Service {
 			    /* ********************************************************************************** */
                 if (request.method.equalsIgnoreCase("DESCRIBE")) {
 
-						String requestContent = getSessionDescription();
+						String requestContent = getSessionDescription(mClient.getInetAddress());
 
 						String requestAttributes =
 								"Content-Base: rtsp://" + mClient.getLocalAddress().getHostAddress() + ":" + mClient.getLocalPort() + "/\r\n" +
@@ -554,61 +560,10 @@ public class RtspServer extends Service {
 					else {
 						Log.e(HHTAG, "mPacketizer == null");
 					}
-/*
-					mRTPsocket = new DatagramSocket();
-					mTimer = new Timer();
-					imagenb = 0;
-					mTask = new TimerTask() {
-						@Override
-						public void run() {
-							byte[] frame;
-
-							Log.d(HHTAG, "TimerTask : imagenb = " + imagenb);
-							//if the current image nb is less than the length of the video
-							if (imagenb < VIDEO_LENGTH) {
-								imagenb++;
-								try {
-									//get next frame to send from the video, as well as its size
-									int image_length = video.getnextframe(buf);
-									Log.d(HHTAG, "image_length = " + image_length);
-
-									//Builds an RTPpacket object containing the frame
-									RTPpacket rtp_packet = new RTPpacket(MJPEG_TYPE, imagenb, imagenb*FRAME_PERIOD, buf, image_length);
-
-									//get to total length of the full rtp packet to send
-									int packet_length = rtp_packet.getlength();
-
-									//retrieve the packet bitstream and store it in an array of bytes
-									byte[] packet_bits = new byte[packet_length];
-									rtp_packet.getpacket(packet_bits);
-
-									//send the packet as a DatagramPacket over the UDP socket
-									senddp = new DatagramPacket(packet_bits, packet_length, mClient.getInetAddress(), srcPort[1][0]);
-									mRTPsocket.send(senddp);
-
-									//System.out.println("Send frame #"+imagenb);
-									//print the header bitstream
-									rtp_packet.printheader();
-
-
-								}
-								catch(Exception ex)
-								{
-									Log.e(HHTAG, ex.getMessage());
-								}
-							}
-							else {
-								mTimer.cancel();
-								Log.d(HHTAG, "imagenb < VIDEO_LENGTH");
-							}
-
-						}
-					};
-					*/
 
 					response.attributes = "Transport: RTP/AVP/UDP;" +  "unicast" +
 //							";destination=" + mSession.getDestination() +
-							";destination=" + LOCAL_IP +
+							";destination=" +  mClient.getLocalAddress().getHostAddress() +
 							";client_port=" + p1 + "-" + p2 +
 							";server_port=" + DEFAULT_VIDEO_PORT + "-" + (DEFAULT_VIDEO_PORT+1) +
 //							";ssrc=" + Integer.toHexString(ssrc) +
@@ -637,6 +592,7 @@ public class RtspServer extends Service {
 
 
 					mPacketizer.start();
+					//mPacketizer2.start();
 
                     // If no exception has been thrown, we reply with OK
                     response.status = Response.STATUS_OK;
@@ -648,6 +604,7 @@ public class RtspServer extends Service {
                 /* ********************************************************************************** */
                 else if (request.method.equalsIgnoreCase("PAUSE")) {
 					mPacketizer.stop();
+					//mPacketizer2.stop();
                     response.status = Response.STATUS_OK;
                 }
 
@@ -694,48 +651,27 @@ public class RtspServer extends Service {
             return false;
         }
 	}
-	public String getSessionDescription() {
+	public String getSessionDescription(InetAddress clientIP) {
 		StringWriter writer1 = new StringWriter();
 		StringWriter writer2 = new StringWriter();
 
 		// Write the body first so we can get the size later
 		writer2.write("v=0" + CRLF);
-		writer2.write("o=HyeokH 1234 1234 IN IP4 " + "10.0.2.2" + CRLF);
+		writer2.write("o=HyeokH 1234 1234 IN IP4 " + clientIP + CRLF);
 		writer2.write("s=Nonamed" + CRLF);
 		writer2.write("t=0 0" + CRLF);
 		writer2.write("m=video " + DEFAULT_VIDEO_PORT + " RTP/AVP " + MJPEG_TYPE + CRLF);
 		//writer2.write("a=control:streamid=" + RTSP_ID + CRLF);
 		//writer2.write("a=mimetype:string;\"video/MJPEG\"" + CRLF);
+//		writer2.write("a=framesize:" + MJPEG_TYPE + " 1920-1440" + CRLF);
 		writer2.write("a=framesize:" + MJPEG_TYPE + " 480-360" + CRLF);
 		writer2.write("a=rtpmap:"+ MJPEG_TYPE +" H264/90000" + CRLF);
+		//writer2.write("a=fmtp:" + MJPEG_TYPE + " profile-level-id=428016" + CRLF);
 		writer2.write("a=control:trackId=1" + CRLF);
 
 		String body = writer2.toString();
 
 		return body;
-            /*
-            StringBuilder sessionDescription = new StringBuilder();
-            sessionDescription.append(
-
-                    "m=video " + DEFAULT_VIDEO_PORT + " RTP/AVP 96\n" +
-                            //"a=control:streamid=0\n" +
-                            //"a=range:npt=0-7.741000\n" +
-                            //"a=length:npt=7.741000\n" +
-                            //"a=rtpmap:96 MP4V-ES/5544\n" +
-                            //"a=mimetype:string;\"video/MP4V-ES\"\n" +
-                            //"a=AvgBitRate:integer;304018\n" +
-                            //"a=StreamName:string;\"hinted video track\"\n" +
-                            //"m=audio "+ DEFAULT_AUDIO_PORT + " RTP/AVP 97\n" +
-                            //"a=control:streamid=1\n" +
-                            //"a=range:npt=0-7.712000\n" +
-                            //"a=length:npt=7.712000\n" +
-                            //"a=rtpmap:97 mpeg4-generic/32000/2\n" +
-                            //"a=mimetype:string;\"audio/mpeg4-generic\"\n" +
-                            //"a=AvgBitRate:integer;65790\n" +
-                            //"a=StreamName:string;\"hinted audio track\""
-                            ""
-            );
-            return sessionDescription.toString();*/
 	}
 
 	static class Request {
