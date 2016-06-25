@@ -9,13 +9,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.example.prj2016s.R;
 import com.example.prj2016s.RtspServer.lib.RtspClient;
 
 import org.w3c.dom.Text;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Timer;
@@ -31,10 +36,10 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
     private long START_TIME;
     private M3u8Manager man;
     private boolean isAuto;
-    private int bwSet = 30000;
-    LinkedList<String> downloaded;
+    private int bwSet = 300;
+    LinkedList<InputStream> downloaded;
     private TextView bitchange;
-    private TextView logchange;
+    private VideoView mVideoView;
     private Button button_auto;
     private Button button_inc;
     private Button button_dec;
@@ -43,24 +48,29 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         @Override
         public void run() {
             super.run();
-            downloaded.add(man.getNext(bwSet, isAuto, ManagerActivity.this));
+            InputStream temp = null;
+            String filePath = man.getNext(bwSet, isAuto, ManagerActivity.this);
+            if (filePath.equals("")){
+                temp = null;
+            }
+            else {
+                try {
+                    temp = new FileInputStream(filePath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            downloaded.add(temp);
                 }
             }
 
-    public String printTs(){
-        String result = "";
-        for (int i=0; i<downloaded.size(); i++)
-            result = result + downloaded.get(i);
-        return result;
-    }
-
     public CallbackEvent callbackEvent = new CallbackEvent(){
         @Override
-        public String callbackMethod() {
+        public InputStream callbackMethod() {
             // TODO Auto-generated method stub
             DownloadTs hi = new DownloadTs();
             hi.start();
-            String result = downloaded.getFirst();
+            InputStream result = downloaded.getFirst();
             downloaded.removeFirst();
             return(result);
         }
@@ -76,7 +86,7 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_manager);
         START_TIME = SystemClock.currentThreadTimeMillis();
         bitchange = (TextView)findViewById(R.id.bw);
-        logchange = (TextView)findViewById(R.id.Ts_log);
+        mVideoView = (VideoView)findViewById(R.id.tsView);
         button_auto = (Button)findViewById(R.id.auto_bw);
         button_inc = (Button)findViewById(R.id.increase_bw);
         button_dec = (Button)findViewById(R.id.decrease_bw);
@@ -85,8 +95,8 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         button_inc.setOnClickListener(this);
         button_dec.setOnClickListener(this);
 
-        bitchange.setText("30000");
-        downloaded = new LinkedList<String>();
+        bitchange.setText("300");
+        downloaded = new LinkedList<InputStream>();
 
         Intent intent = getIntent();
         String fileName= intent.getStringExtra("fileName");
@@ -105,13 +115,11 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
             try {
                 man = new M3u8Manager();
                 man.prepare(fileName, this);
-                downloaded.add(man.getNext(bwSet, isAuto, this));
-                downloaded.add(man.getNext(bwSet, isAuto, this));
+                downloaded.add(new FileInputStream(man.getNext(bwSet, isAuto, this)));
+                downloaded.add(new FileInputStream(man.getNext(bwSet, isAuto, this)));
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            logchange.setText(printTs());
 
         }
     }
@@ -121,14 +129,20 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         switch(v.getId()){
             case R.id.auto_bw:
                 isAuto = true;
+                break;
             case R.id.increase_bw:
                 bwSet = bwSet+10;
                 isAuto = false;
                 bitchange.setText(Integer.toString(bwSet));
+                Log.i("ManagerActivity", "bit changed: "+Integer.toString(bwSet));
+                System.out.println(downloaded.getFirst());
+                break;
             case R.id.decrease_bw:
                 bwSet = bwSet-10;
                 isAuto = false;
                 bitchange.setText(Integer.toString(bwSet));
+                Log.i("ManagerActivity", "bit changed: "+Integer.toString(bwSet));
+                break;
         }
     }
 }

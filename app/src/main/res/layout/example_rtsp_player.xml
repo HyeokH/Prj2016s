@@ -9,7 +9,6 @@
         android:paddingBottom="16dp"
         android:id="@+id/videoView"
         android:layout_gravity="center_horizontal" />
-
         <Button
             android:id="@+id/video1"
             android:contentDescription="video"
