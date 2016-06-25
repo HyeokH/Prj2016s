@@ -100,7 +100,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 
 			if (is.markSupported()) {
 				Log.d(TAG, "is.markSupported() = true");
-				is.mark(1000000);
+				is.mark(3000000);
 			}
 			while (!Thread.interrupted() && sw) {
 
@@ -168,8 +168,8 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 				if (is.read(is2, naluLength+4, 1) < 0) {
 					naluLength+=4;
 					is.reset();
-					Log.e(TAG, "End of is      repeat = " + repeat);
 					repeat--;
+					Log.e(TAG, "End of is      repeat = " + repeat);
 					if (repeat < 0)return false;
 					else return true;
 				}
