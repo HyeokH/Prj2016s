@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2014 GUIGUI Simon, fyhertz@gmail.com
+ * Copyright (C) 2011 GUIGUI Simon, fyhertz@gmail.com
  * 
- * This file is part of libstreaming (https://github.com/fyhertz/libstreaming)
+ * This file is part of Spydroid (http://code.google.com/p/spydroid-ipcamera/)
  * 
  * Spydroid is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +18,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-package net.majorkernelpanic.streaming.rtp;
+package com.example.prj2016s.RtspServer.lib_spy;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.Random;
 
-import net.majorkernelpanic.streaming.rtcp.SenderReport;
+import android.util.Log;
 
 /**
  * 
@@ -36,29 +35,36 @@ import net.majorkernelpanic.streaming.rtcp.SenderReport;
 abstract public class AbstractPacketizer {
 
 	protected static final int rtphl = RtpSocket.RTP_HEADER_LENGTH;
-	
-	// Maximum size of RTP packets
-	protected final static int MAXPACKETSIZE = RtpSocket.MTU-28;
 
 	protected RtpSocket socket = null;
+	//protected SenderReport report = null;
 	protected InputStream is = null;
 	protected byte[] buffer;
 	
-	protected long ts = 0;
+	protected long ts = 0, intervalBetweenReports = 5000, delta = 0;
 
-	public AbstractPacketizer() {
+	public AbstractPacketizer() throws IOException {
 		int ssrc = new Random().nextInt();
 		ts = new Random().nextInt();
 		socket = new RtpSocket();
+	//	report = new SenderReport();
 		socket.setSSRC(ssrc);
+	//	report.setSSRC(ssrc);
 	}
 
 	public RtpSocket getRtpSocket() {
 		return socket;
 	}
 
+	/*
+	public SenderReport getRtcpSocket() {
+		return report;
+	}*/
+
+
 	public void setSSRC(int ssrc) {
 		socket.setSSRC(ssrc);
+	//	report.setSSRC(ssrc);
 	}
 
 	public int getSSRC() {
@@ -68,7 +74,7 @@ abstract public class AbstractPacketizer {
 	public void setInputStream(InputStream is) {
 		this.is = is;
 	}
-	
+
 	public void setTimeToLive(int ttl) throws IOException {
 		socket.setTimeToLive(ttl);
 	}
@@ -80,9 +86,20 @@ abstract public class AbstractPacketizer {
 	 * @param rtcpPort Destination port that will be used for RTCP
 	 */
 	public void setDestination(InetAddress dest, int rtpPort, int rtcpPort) {
-		socket.setDestination(dest, rtpPort, rtcpPort);		
+		socket.setDestination(dest, rtpPort);
+	//	report.setDestination(dest, rtcpPort);
 	}
 
+	/**
+	 * Sets the temporal interval between two RTCP Sender Reports.
+	 * Default interval is set to 5 secondes.
+	 * Set 0 to disable RTCP.
+	 * @param interval The interval in milliseconds
+	 */
+	public void setSenderReportsInterval(long interval) {
+		intervalBetweenReports = interval;
+	}
+	
 	/** Starts the packetizer. */
 	public abstract void start() throws IOException;
 
@@ -92,6 +109,7 @@ abstract public class AbstractPacketizer {
 	/** Updates data for RTCP SR and sends the packet. */
 	protected void send(int length) throws IOException {
 		socket.commitBuffer(length);
+	//	report.update(length);
 	}
 
 	/** For debugging purposes. */
@@ -102,7 +120,7 @@ abstract public class AbstractPacketizer {
 	}
 
 	/** Used in packetizers to estimate timestamps in RTP packets. */
-	protected static class Statistics {
+	public static class Statistics {
 
 		public final static String TAG = "Statistics";
 		
