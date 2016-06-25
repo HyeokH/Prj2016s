@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/Ts_log" />
+
+    <Button
+        android:layout_width="92dp"
+        android:layout_height="wrap_content"
+        android:text="@string/inc"
+        android:id="@+id/increase_bw"
+        android:layout_gravity="right" />
+
+    <TextView
+        android:layout_width="94dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:id="@+id/bw"
+        android:layout_gravity="right" />
+
+    <Button
+        android:layout_width="92dp"
+        android:layout_height="wrap_content"
+        android:text="@string/dec"
+        android:id="@+id/decrease_bw"
+        android:layout_gravity="right" />
+
+    <Button
+        android:layout_width="92dp"
+        android:layout_height="wrap_content"
+        android:text="@string/auto"
+        android:id="@+id/auto_bw"
+        android:layout_gravity="right" />
+</LinearLayout>

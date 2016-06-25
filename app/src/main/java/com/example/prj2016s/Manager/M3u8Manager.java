@@ -18,6 +18,8 @@ public class M3u8Manager {
     public static int timeLoc;
     //location of saved files(root)
     public String dir;
+    private TsManager tt;
+    private String vName;
 
     //get m3u8
     public void getM3u8(String name, Context ctx) { //name - with ext.
@@ -49,15 +51,18 @@ public class M3u8Manager {
             Toast.makeText(ctx, "error in http requests", Toast.LENGTH_SHORT).show();
         }
     }
-    //시간 인자로 받게 수정가능!
-    public void managing(String nameTemp, Context ctx) throws IOException{
+    //스트리밍할 준비
+    public void prepare(String nameTemp, Context ctx) throws IOException{
         //bandwidth濡� 怨�, 以�, �� �뙋�떒
         //location怨� m3u8�뙆�씪 ts �뙆�씪 留ㅻ땲���뿉寃� �쟾�떖
         String[] name = nameTemp.split("\\.", 0);
-        TsFile test;
         getM3u8(nameTemp, ctx);
+        vName = name[0];
 
-        TsManager tt = new TsManager(dir, name[0]);
-        Log.d("해당 ts파일의 위치", tt.findTs((float)15.687, ctx));
+        tt = new TsManager(dir, vName);
+    }
+
+    public String getNext(int bw, boolean auto, Context ctx){
+        return tt.getNext(bw, auto, ctx);
     }
 }

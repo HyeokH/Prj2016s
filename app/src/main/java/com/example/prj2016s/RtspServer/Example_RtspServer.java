@@ -1,16 +1,20 @@
 package com.example.prj2016s.RtspServer;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.format.Formatter;
 import android.util.Log;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.widget.Button;
-import android.widget.VideoView;
 import android.widget.MediaController;
+import android.widget.VideoView;
 
 import com.example.prj2016s.R;
 import com.example.prj2016s.RtspServer.lib.RtspServer;
@@ -19,6 +23,13 @@ import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
 import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.rtsp.RtspClient;
+
+import java.io.DataOutputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 
 /**
@@ -34,6 +45,43 @@ public class Example_RtspServer extends Activity implements
     private Button mButtonVideo;
     private RtspClient mClient;
     private Session mSession;
+    private String ipaddress;
+
+    class Connect extends Thread {
+        public void run() {
+            Log.d("Connect", "Run Connect");
+            String ip = ipaddress;
+            int port = 8086;
+            try {
+                Socket socket = new Socket(ip, port);
+                if(socket.isConnected())
+                    Log.i(TAG, "hi");
+                else
+                    Log.i(TAG, "bye");
+            } catch (Exception e) {
+                Log.d("Connect", e.getMessage());
+            }
+        }
+    }
+
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        String ip = Formatter.formatIpAddress(inetAddress.hashCode());
+                        Log.i(TAG, "***** IP="+ ip);
+                        return ip;
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e(TAG, ex.toString());
+        }
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +99,7 @@ public class Example_RtspServer extends Activity implements
 
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString(RtspServer.KEY_PORT, String.valueOf(8081));
+        editor.putString(RtspServer.KEY_PORT, String.valueOf(8086));
         editor.commit();
 
         mSession = SessionBuilder.getInstance()
@@ -90,10 +138,27 @@ public class Example_RtspServer extends Activity implements
 
                     //mClient.startStream();
 
-                    mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
+ //                   getLocalIpAddress();
+
+ //                   mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
+//                    Uri uri = Uri.parse("rtsp://127.0.0.1:8086");
+//                    mVideoView.setVideoURI(uri);
+
+                    WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo info = wManager.getConnectionInfo();
+                    ipaddress = Formatter.formatIpAddress(info.getIpAddress());
+                    Log.i(TAG, ipaddress);
+
+                    Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("rtsp://"+ipaddress+":8086"));
+ //                   Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("http://52.79.138.33/test/test_high/test_high_0.ts"));
+                    startActivity(i1);
+
+ //                   mVideoView.setVideoPath("rtsp://"+ipaddress+":8086");
+//                    mVideoView.setVideoPath("rtsp://mpv.cdn3.bigCDN.com:554/bigCDN/definst/mp4:bigbuckbunnyiphone_400.mp4");
                     //mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
-                    mVideoView.requestFocus();
-                    mVideoView.start();
+//                    mVideoView.requestFocus();
+//                    mVideoView.start();
+//                    (new Connect()).start();
 
                 } catch (Exception e) {
                     Log.d(TAG, String.valueOf(e));

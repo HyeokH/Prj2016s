@@ -5,25 +5,30 @@ package com.example.prj2016s.Manager;
  */
 //time component(start location of TsFile, end location, file location in server)
 public class TsFile {
-    private final float timeStart;
-    private final float timeEnd;
+    private final long timeStart;
+    private final long timeEnd;
+    private final String name;
     private final String loc;
 
-    public TsFile(float ts, float te, String l) {
+    public TsFile(long ts, long te, String l, String n) {
         timeStart = ts;
         timeEnd = te;
         loc = l;
+        name = n;
     }
 
-    public float getTimeStart() {
+    public long getTimeStart() {
         return timeStart;
     }
 
-    public float getTimeEnd() {
+    public long getTimeEnd() {
         return timeEnd;
     }
 
     public String getLoc() {
         return loc;
+    }
+    public String getName() {
+        return name;
     }
 }
