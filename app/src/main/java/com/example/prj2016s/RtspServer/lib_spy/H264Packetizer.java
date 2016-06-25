@@ -25,6 +25,8 @@ import java.io.InputStream;
 
 import android.util.Log;
 
+import com.example.prj2016s.R;
+
 import net.majorkernelpanic.streaming.rtp.*;
 
 /**
@@ -51,6 +53,8 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 	private int count = 0;
 	byte[] is2 = null;
 	private int is2_start = 0;
+
+	private int repeat = 3;
 	
 	
 	public H264Packetizer() throws IOException {
@@ -93,6 +97,11 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 
 		try {
 			my_fill(is2, 0, 4);
+
+			if (is.markSupported()) {
+				Log.d(TAG, "is.markSupported() = true");
+				is.mark(1000000);
+			}
 			while (!Thread.interrupted() && sw) {
 
 				oldtime = System.nanoTime();
@@ -158,8 +167,11 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 				}
 				if (is.read(is2, naluLength+4, 1) < 0) {
 					naluLength+=4;
-					Log.e(TAG, "End of is");
-					return false;
+					is.reset();
+					Log.e(TAG, "End of is      repeat = " + repeat);
+					repeat--;
+					if (repeat < 0)return false;
+					else return true;
 				}
 
 				naluLength++;
@@ -184,7 +196,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 		header[4] = is2[0];
 		// Parses the NAL unit type
 		type = header[4]&0x1F;
-		Log.e(TAG, "naluLength : " + naluLength + "  type : " + type);
+		//Log.e(TAG, "naluLength : " + naluLength + "  type : " + type);
 		
 		// The stream already contains NAL unit type 7 or 8, we don't need 
 		// to add them to the stream ourselves

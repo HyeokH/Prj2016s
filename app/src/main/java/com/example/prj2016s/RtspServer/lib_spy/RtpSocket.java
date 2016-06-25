@@ -166,7 +166,7 @@ public class RtpSocket implements Runnable {
 
 	/** Sends the RTP packet over the network. */
 	public void commitBuffer(int length) throws IOException {
-
+		//Log.d(TAG, "commitBuffer(int length) length = " + length);
 		updateSequence();
 		mPackets[mBufferIn].setLength(length);
 
