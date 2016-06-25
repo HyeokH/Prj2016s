@@ -71,6 +71,7 @@ import java.util.regex.Pattern;
  */
 public class RtspServer extends Service {
 //	public static String LOCAL_IP = "10.0.2.15";
+	public static String LOCAL_IP = "127.0.0.1";
 
 	public final static String TAG = "RtspServer";
 	public final static String HHTAG = "HyeokHwa RtspServer";
@@ -261,7 +262,6 @@ public class RtspServer extends Service {
 
 		// If the configuration is modified, the server will adjust
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-
 		start();
 	}
 
@@ -346,7 +346,11 @@ public class RtspServer extends Service {
 
 		public RequestListener() throws IOException {
 			try {
+//				InetAddress addr = InetAddress.getByName("127.0.0.1");
+//				mServer = new ServerSocket(mPort,50,addr);
 				mServer = new ServerSocket(mPort);
+				String address = mServer.getInetAddress().getHostAddress();
+				Log.i("Local Socket Address:", address);
 				start();
 			} catch (BindException e) {
 				Log.e(TAG,"Port already in use !");
