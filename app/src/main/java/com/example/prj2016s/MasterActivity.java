@@ -18,14 +18,17 @@ import java.io.IOException;
 public class MasterActivity extends Activity implements View.OnClickListener {
     private Button buttonMp4;
     private Button buttonRec;
+    private Button buttonStream;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_master);
         buttonMp4 = (Button) findViewById(R.id.button_mp4);
         buttonRec = (Button) findViewById(R.id.button_record);
+        buttonStream = (Button) findViewById(R.id.button_stream);
         buttonMp4.setOnClickListener(this);
         buttonRec.setOnClickListener(this);
+        buttonStream.setOnClickListener(this);
     }
 
     @Override
@@ -40,6 +43,12 @@ public class MasterActivity extends Activity implements View.OnClickListener {
             case R.id.button_record:
                 Intent intent1 = new Intent(MasterActivity.this, VideoSave.class);
                 startActivity(intent1);
+                break;
+            case R.id.button_stream:
+                String ValueS = "streaming.mp4";
+                Intent intent2 = new Intent(MasterActivity.this, ManagerActivity.class);
+                intent2.putExtra("fileName", ValueS);
+                startActivity(intent2);
                 break;
         }
     }

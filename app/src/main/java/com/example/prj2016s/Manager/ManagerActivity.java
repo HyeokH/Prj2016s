@@ -68,14 +68,15 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
 
         bitchange.setText("300");
 
+        Intent intent = getIntent();
+        String fileName= intent.getStringExtra("fileName");
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean(RtspServer.KEY_IS_AUTO, false);
         editor.putString(RtspServer.KEY_BW, String.valueOf(200));
+        editor.putString(RtspServer.KEY_NAME, fileName);
         editor.commit();
-        //Intent intent = getIntent();
-        //String fileName= intent.getStringExtra("fileName");
-        String fileName= "test.mp4";
+//        String fileName= "test.mp4";
 
         //rtsp packet 만들기
 //       make_packet(downloaded.getFirst());

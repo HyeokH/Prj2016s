@@ -217,7 +217,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 		header[4] = is2[0];
 		// Parses the NAL unit type
 		type = header[4]&0x1F;
-		Log.d(TAG, "naluLength : " + naluLength + "  type : " + type);
+		//Log.d(TAG, "naluLength : " + naluLength + "  type : " + type);
 		
 		// The stream already contains NAL unit type 7 or 8, we don't need 
 		// to add them to the stream ourselves

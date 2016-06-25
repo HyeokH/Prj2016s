@@ -107,6 +107,7 @@ public class RtspServer extends Service {
 	public final static String KEY_PORT = "rtsp_port";
 	public final static String KEY_IS_AUTO = "is_auto";
 	public final static String KEY_BW = "bw";
+	public final static String KEY_NAME = "filename";
 
 	final static String CRLF = "\r\n";
 
@@ -458,10 +459,11 @@ public class RtspServer extends Service {
 
 			try {
 				Log.d(TAG, "downloaded.add *2 st");
-				man = new M3u8Manager();
-				man.prepare("test.mp4", getApplicationContext());
-
 				mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+				man = new M3u8Manager();
+				man.prepare(mSharedPreferences.getString(KEY_NAME, "test.mp4"), getApplicationContext());
+
 				mBwSet = Integer.parseInt(mSharedPreferences.getString(KEY_BW, String.valueOf(mBwSet)));
 				mIsAuto = mSharedPreferences.getBoolean(KEY_IS_AUTO, mIsAuto);
 				downloaded.add(new FileInputStream(man.getNext(mBwSet, mIsAuto, getApplicationContext())));
