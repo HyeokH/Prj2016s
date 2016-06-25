@@ -62,7 +62,7 @@ public class Example_RtspServer2 extends Activity implements
         setContentView(R.layout.example_rtsp_player);
 
  //       mVideoView = (VideoView)findViewById(R.id.videoView);
-        mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView);
+ //       mSurfaceView = (SurfaceView)findViewById(R.id.surfaceView);
         mButtonVideo = (Button) findViewById(R.id.video);
         mButtonVideo.setOnClickListener(this);
 
