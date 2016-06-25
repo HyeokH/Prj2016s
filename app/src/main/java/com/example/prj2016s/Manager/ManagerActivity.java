@@ -2,9 +2,11 @@ package com.example.prj2016s.Manager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +15,7 @@ import android.widget.VideoView;
 
 import com.example.prj2016s.R;
 import com.example.prj2016s.RtspServer.lib.RtspClient;
+import com.example.prj2016s.RtspServer.lib.RtspServer;
 
 import org.w3c.dom.Text;
 
@@ -34,47 +37,15 @@ import java.util.TimerTask;
 
 public class ManagerActivity extends Activity implements View.OnClickListener {
     private long START_TIME;
-    private M3u8Manager man;
     private boolean isAuto;
     private int bwSet = 300;
-    LinkedList<InputStream> downloaded;
     private TextView bitchange;
     private VideoView mVideoView;
     private Button button_auto;
     private Button button_inc;
     private Button button_dec;
 
-    class DownloadTs extends Thread {
-        @Override
-        public void run() {
-            super.run();
-            InputStream temp = null;
-            String filePath = man.getNext(bwSet, isAuto, ManagerActivity.this);
-            if (filePath.equals("")){
-                temp = null;
-            }
-            else {
-                try {
-                    temp = new FileInputStream(filePath);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            downloaded.add(temp);
-                }
-            }
 
-    public CallbackEvent callbackEvent = new CallbackEvent(){
-        @Override
-        public InputStream callbackMethod() {
-            // TODO Auto-generated method stub
-            DownloadTs hi = new DownloadTs();
-            hi.start();
-            InputStream result = downloaded.getFirst();
-            downloaded.removeFirst();
-            return(result);
-        }
-    };
 
     //EventRegistration eventRegistration = new EventRegistration(ManagerActivity.callbackEvent);
     //String inputPath = eventRegistration.doWork();
@@ -96,32 +67,25 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         button_dec.setOnClickListener(this);
 
         bitchange.setText("300");
-        downloaded = new LinkedList<InputStream>();
 
-        Intent intent = getIntent();
-        String fileName= intent.getStringExtra("fileName");
+
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        editor.putBoolean(RtspServer.KEY_IS_AUTO, false);
+        editor.putString(RtspServer.KEY_BW, String.valueOf(200));
+        editor.commit();
+        //Intent intent = getIntent();
+        //String fileName= intent.getStringExtra("fileName");
+        String fileName= "test.mp4";
 
         //rtsp packet 만들기
 //       make_packet(downloaded.getFirst());
 //       downloaded.remove(downloaded.getFirst()) ;
 
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8)
-        {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
 
-            try {
-                man = new M3u8Manager();
-                man.prepare(fileName, this);
-                downloaded.add(new FileInputStream(man.getNext(bwSet, isAuto, this)));
-                downloaded.add(new FileInputStream(man.getNext(bwSet, isAuto, this)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
+        this.startService(new Intent(this,RtspServer.class));
+        mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
+        mVideoView.requestFocus();
+        mVideoView.start();
     }
 
     @Override
@@ -129,18 +93,28 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
         switch(v.getId()){
             case R.id.auto_bw:
                 isAuto = true;
+                SharedPreferences.Editor editor3 = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                editor3.putBoolean(RtspServer.KEY_IS_AUTO, true);
+                editor3.commit();
                 break;
             case R.id.increase_bw:
                 bwSet = bwSet+10;
                 isAuto = false;
                 bitchange.setText(Integer.toString(bwSet));
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                editor.putBoolean(RtspServer.KEY_IS_AUTO, false);
+                editor.putString(RtspServer.KEY_BW, String.valueOf(bwSet));
+                editor.commit();
                 Log.i("ManagerActivity", "bit changed: "+Integer.toString(bwSet));
-                System.out.println(downloaded.getFirst());
                 break;
             case R.id.decrease_bw:
                 bwSet = bwSet-10;
                 isAuto = false;
                 bitchange.setText(Integer.toString(bwSet));
+                SharedPreferences.Editor editor2 = PreferenceManager.getDefaultSharedPreferences(this).edit();
+                editor2.putBoolean(RtspServer.KEY_IS_AUTO, false);
+                editor2.putString(RtspServer.KEY_BW, String.valueOf(bwSet));
+                editor2.commit();
                 Log.i("ManagerActivity", "bit changed: "+Integer.toString(bwSet));
                 break;
         }

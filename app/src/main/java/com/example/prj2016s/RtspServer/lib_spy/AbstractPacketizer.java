@@ -104,7 +104,7 @@ abstract public class AbstractPacketizer {
 	public abstract void start() throws IOException;
 
 	/** Stops the packetizer. */
-	public abstract void stop();
+	public abstract void stop() throws IOException;
 
 	/** Updates data for RTCP SR and sends the packet. */
 	protected void send(int length) throws IOException {

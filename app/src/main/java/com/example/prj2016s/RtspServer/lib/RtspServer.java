@@ -31,6 +31,12 @@ import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.prj2016s.Manager.M3u8Manager;
+import com.example.prj2016s.Manager.ManagerActivity;
+import com.example.prj2016s.Manager.ManagerActivity.*;
+import com.example.prj2016s.etc.CallbackEvent;
+import com.example.prj2016s.etc.EventRegistration;
+
 import com.example.prj2016s.R;
 import com.example.prj2016s.RtspServer.VideoStream;
 import com.example.prj2016s.RtspServer.lib_spy.H264Packetizer;
@@ -40,6 +46,7 @@ import net.majorkernelpanic.streaming.Session;
 import net.majorkernelpanic.streaming.SessionBuilder;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -98,6 +105,8 @@ public class RtspServer extends Service {
 
 	/** Key used in the SharedPreferences for the port used by the RTSP server. */
 	public final static String KEY_PORT = "rtsp_port";
+	public final static String KEY_IS_AUTO = "is_auto";
+	public final static String KEY_BW = "bw";
 
 	final static String CRLF = "\r\n";
 
@@ -119,7 +128,9 @@ public class RtspServer extends Service {
     private String mPassword;
 
 	private int[][] srcPort = new int[10][2];
-	
+
+	int mBwSet = 200;
+	boolean mIsAuto = false;
 
 	public RtspServer() {
 	}
@@ -262,6 +273,7 @@ public class RtspServer extends Service {
 
 		// If the configuration is modified, the server will adjust
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
+
 		start();
 	}
 
@@ -385,6 +397,32 @@ public class RtspServer extends Service {
 
 	}
 
+
+	private M3u8Manager man;
+	LinkedList<InputStream> downloaded = new LinkedList<InputStream>();
+	class DownloadTs extends Thread {
+		@Override
+		public void run() {
+			super.run();
+			InputStream temp = null;
+
+			mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			mBwSet = Integer.parseInt(mSharedPreferences.getString(KEY_BW, String.valueOf(mBwSet)));
+			mIsAuto = mSharedPreferences.getBoolean(KEY_IS_AUTO, mIsAuto);
+			String filePath = man.getNext(	mBwSet, mIsAuto, getApplicationContext());
+			if (filePath.equals("")){
+				temp = null;
+			}
+			else {
+				try {
+					temp = new FileInputStream(filePath);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			downloaded.add(temp);
+		}
+	}
 	// One thread per client
 	class WorkerThread extends Thread implements Runnable {
 
@@ -405,6 +443,7 @@ public class RtspServer extends Service {
 
 		//private MyPacketizer mPacketizer2 = null;
 		private H264Packetizer mPacketizer = null;
+		private EventRegistration mEventRegistration = null;
 //		private AACADTSPacketizer mPacketizer = null;
 //		private AACLATMPacketizer mPacketizer = null;
 
@@ -415,13 +454,52 @@ public class RtspServer extends Service {
 
 			mSession = new Session();
 			mPacketizer = new H264Packetizer();
+
+
+			try {
+				Log.d(TAG, "downloaded.add *2 st");
+				man = new M3u8Manager();
+				man.prepare("test.mp4", getApplicationContext());
+
+				mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				mBwSet = Integer.parseInt(mSharedPreferences.getString(KEY_BW, String.valueOf(mBwSet)));
+				mIsAuto = mSharedPreferences.getBoolean(KEY_IS_AUTO, mIsAuto);
+				downloaded.add(new FileInputStream(man.getNext(mBwSet, mIsAuto, getApplicationContext())));
+				downloaded.add(new FileInputStream(man.getNext(mBwSet, mIsAuto, getApplicationContext())));
+				Log.d(TAG, "downloaded.add *2 end");
+			} catch (IOException e) {
+				Log.d(TAG, e.getMessage());
+				e.printStackTrace();
+			}
+
 			//mPacketizer2 = new MyPacketizer();
 			try {
-				//InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_aac);
-				InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_h264);
+
+				Log.d(TAG, "bw : " + mBwSet + " isAuto : " + mIsAuto);
+				DownloadTs  hi = new DownloadTs();
+				hi.start();
+				InputStream fis = downloaded.getFirst();
+				downloaded.removeFirst();
+
 				mPacketizer.setInputStream(fis);
 				//mPacketizer2.setInputStream(fis);
 				mPacketizer.setTimeToLive(DEFAULT_TTL);
+
+				CallbackEvent callbackEvent = new CallbackEvent(){
+					@Override
+					public void callbackMethod() {
+						Log.d(TAG, "callbackMethod() - bw : " + mBwSet + " isAuto : " + mIsAuto);
+						DownloadTs  hi = new DownloadTs();
+						hi.start();
+						InputStream fis = downloaded.getFirst();
+						downloaded.removeFirst();
+
+						mPacketizer.setInputStream(fis);
+					}
+				};
+				EventRegistration eventRegistration = new EventRegistration(callbackEvent);
+				mPacketizer.setEventRegistration(eventRegistration);
+				Log.d(TAG, "bw : " + mBwSet + " isAuto : " + mIsAuto);
 			}
 			catch (Exception e) {
 				Log.e(HHTAG, "mPacketizer : " + e.getMessage());
