@@ -28,6 +28,8 @@ import android.util.Log;
 import com.example.prj2016s.R;
 
 import net.majorkernelpanic.streaming.rtp.*;
+import com.example.prj2016s.etc.CallbackEvent;
+import com.example.prj2016s.etc.EventRegistration;
 
 /**
  * 
@@ -55,6 +57,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 	private int is2_start = 0;
 
 	private int repeat = 3;
+	private EventRegistration mEventRegistration = null;
 	
 	
 	public H264Packetizer() throws IOException {
@@ -62,7 +65,11 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 		socket.setClockFrequency(90000);
 	}
 
+	public void setEventRegistration(EventRegistration nER) {
+		mEventRegistration = nER;
+	};
 	public void start() throws IOException {
+		Log.e(TAG, "H264Packetizer start()");
 		if (t == null) {
 			is2 = new byte[100000];
 			t = new Thread(this);
@@ -70,7 +77,8 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 		}
 	}
 
-	public void stop() {
+	public void stop() throws IOException {
+		Log.e(TAG, "H264Packetizer stop()");
 		if (t != null) {
 			is2 = null;
 			t.interrupt();
@@ -89,19 +97,24 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 	public void run() {
 		long duration = 0, delta2 = 0;
 		boolean sw = true;
-		Log.d(TAG,"H264 packetizer started !");
+		Log.d(TAG, "H264 packetizer started !");
 		stats.reset();
 		count = 0;
 
-		Log.d(TAG,"skip mp4 header !");
+		Log.d(TAG, "skip mp4 header !");
 
+		while (!Thread.interrupted()) {
+			sw = true;
+			Log.d(TAG, "H264 packetizer restarted !");
 		try {
 			my_fill(is2, 0, 4);
-
+/*
 			if (is.markSupported()) {
 				Log.d(TAG, "is.markSupported() = true");
-				is.mark(1000000);
+				is.mark(3000000);
 			}
+			*/
+
 			while (!Thread.interrupted() && sw) {
 
 				oldtime = System.nanoTime();
@@ -124,25 +137,25 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 
 				// Every 5 secondes, we send two packets containing NALU type 7 (sps) and 8 (pps)
 				// Those should allow the H264 stream to be decoded even if no SDP was sent to the decoder.				
-				delta2 += duration/1000000;
-				if (delta2>5000) {
+				delta2 += duration / 1000000;
+				if (delta2 > 5000) {
 					delta2 = 0;
 					if (sps != null) {
 						buffer = socket.requestBuffer();
 						socket.markNextPacket();
 						socket.updateTimestamp(ts);
 						System.arraycopy(sps, 0, buffer, rtphl, sps.length);
-						super.send(rtphl+sps.length);
+						super.send(rtphl + sps.length);
 					}
 					if (pps != null) {
 						buffer = socket.requestBuffer();
 						socket.updateTimestamp(ts);
 						socket.markNextPacket();
 						System.arraycopy(pps, 0, buffer, rtphl, pps.length);
-						super.send(rtphl+pps.length);
-					}					
+						super.send(rtphl + pps.length);
+					}
 				}
-				
+
 				stats.push(duration);
 				// Computes the average duration of a NAL unit
 				delay = stats.average();
@@ -150,10 +163,17 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 
 			}
 		} catch (IOException e) {
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+		}
 
-		Log.d(TAG,"H264 packetizer stopped !");
+		Log.d(TAG, "H264 packetizer stopped !");
 
+		if (mEventRegistration != null) {
+			Log.d(TAG, "mEventRegistration != null");
+			mEventRegistration.doWork();
+			if (is == null) break;
+		}
+	}
 	}
 
 	private boolean my_send() throws IOException {
@@ -165,14 +185,15 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 				if ((int)(is2[naluLength]&0xFF) == 0 && (int)(is2[naluLength+1]&0xFF) == 0 && (int)(is2[naluLength+2]&0xFF) == 0 && (int)(is2[naluLength+3]&0xFF) == 1) {
 					break;
 				}
-				if (is.read(is2, naluLength+4, 1) < 0) {
-					naluLength+=4;
-					is.reset();
-					Log.e(TAG, "End of is      repeat = " + repeat);
-					repeat--;
-					if (repeat < 0)return false;
+					if (is.read(is2, naluLength + 4, 1) < 0) {
+						naluLength += 4;
+						Log.e(TAG, "End of is");
+						return false;
+					/*
+					if (repeat < 0) return false;
 					else return true;
-				}
+					*/
+					}
 
 				naluLength++;
 			}
@@ -196,7 +217,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 		header[4] = is2[0];
 		// Parses the NAL unit type
 		type = header[4]&0x1F;
-		//Log.e(TAG, "naluLength : " + naluLength + "  type : " + type);
+		Log.d(TAG, "naluLength : " + naluLength + "  type : " + type);
 		
 		// The stream already contains NAL unit type 7 or 8, we don't need 
 		// to add them to the stream ourselves
