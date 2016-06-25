@@ -71,6 +71,7 @@ import java.util.regex.Pattern;
  */
 public class RtspServer extends Service {
 //	public static String LOCAL_IP = "10.0.2.15";
+	public static String LOCAL_IP = "127.0.0.1";
 
 	public final static String TAG = "RtspServer";
 	public final static String HHTAG = "HyeokHwa RtspServer";
@@ -93,7 +94,7 @@ public class RtspServer extends Service {
 	static int FRAME_PERIOD = 1000;
 	static int VIDEO_LENGTH = 500;
 	static int RTSP_ID = 123456;
-	static int DEFAULT_TTL = 100;
+	static int DEFAULT_TTL = 1;
 
 	/** Key used in the SharedPreferences for the port used by the RTSP server. */
 	public final static String KEY_PORT = "rtsp_port";
@@ -261,7 +262,6 @@ public class RtspServer extends Service {
 
 		// If the configuration is modified, the server will adjust
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-
 		start();
 	}
 
@@ -346,7 +346,11 @@ public class RtspServer extends Service {
 
 		public RequestListener() throws IOException {
 			try {
+//				InetAddress addr = InetAddress.getByName("127.0.0.1");
+//				mServer = new ServerSocket(mPort,50,addr);
 				mServer = new ServerSocket(mPort);
+				String address = mServer.getInetAddress().getHostAddress();
+				Log.i("Local Socket Address:", address);
 				start();
 			} catch (BindException e) {
 				Log.e(TAG,"Port already in use !");
@@ -414,7 +418,7 @@ public class RtspServer extends Service {
 			//mPacketizer2 = new MyPacketizer();
 			try {
 				//InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_aac);
-				InputStream fis = getResources().openRawResource(R.raw.tttttoutput_h264);
+				InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_h264);
 				mPacketizer.setInputStream(fis);
 				//mPacketizer2.setInputStream(fis);
 				mPacketizer.setTimeToLive(DEFAULT_TTL);

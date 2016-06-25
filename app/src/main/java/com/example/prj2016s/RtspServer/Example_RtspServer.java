@@ -88,7 +88,6 @@ public class Example_RtspServer extends Activity implements
                     //Uri uri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.sample1);
 
                     //Log.d(TAG, "rtsp://" + getLocalHost() + ":8086");
-                    //mVideoView.setVideoURI(uri);
                     //mVideoView.setVideoPath("http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4");
                     //mVideoView.setVideoPath("rtsp://127.0.0.1/rtp_test1");
                     //mVideoView.setVideoPath("rtsp://ebsonairandaod.ebs.co.kr/fmradiobandiaod/bandiappaac");
@@ -98,11 +97,15 @@ public class Example_RtspServer extends Activity implements
 
                     //mClient.startStream();
 
-                    //mVideoView.setVideoPath("rtsp://10.0.2.15:8086");
-                    /*
-                    mVideoView.setVideoPath("rtsp://192.:8086");
+/*
+                    WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo info = wManager.getConnectionInfo();
+                    String ipaddress = Formatter.formatIpAddress(info.getIpAddress());
+                    mVideoView.setVideoURI(Uri.parse("rtsp://"+ipaddress+":8086"));*/
+                    mVideoView.setVideoPath("rtsp://127.0.0.1:8086");
                     mVideoView.requestFocus();
-                    mVideoView.start();*/
+                    mVideoView.start();
+                    /*
                     WifiManager wManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                     WifiInfo info = wManager.getConnectionInfo();
                     String ipaddress = Formatter.formatIpAddress(info.getIpAddress());
@@ -110,7 +113,7 @@ public class Example_RtspServer extends Activity implements
 
                     Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("rtsp://"+ipaddress+":8086"));
                     //                   Intent i1 = new Intent (Intent.ACTION_VIEW ,Uri.parse("http://52.79.138.33/test/test_high/test_high_0.ts"));
-                    startActivity(i1);
+                    startActivity(i1);*/
 
                 } catch (Exception e) {
                     Log.d(TAG, String.valueOf(e));

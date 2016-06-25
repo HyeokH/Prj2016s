@@ -25,31 +25,96 @@ public class TsManager {
     public ArrayList<TsFile> midList;
     public ArrayList<TsFile> highList;
     private int[] bandwidth = new int[3];
+    private int tsSize;
+    private int curr = 0;
 
     public TsManager(){
     }
-    public String findTs(float t, Context ctx){
+
+    public String getNext(int bw, boolean auto, Context ctx){
+        ArrayList<TsFile> tsList;
+        int currBand = 200;
+        //get some bandwidth
+        //this line will be replaced by WifiManager
+        if (auto) {
+            ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = conMan.getActiveNetworkInfo();
+            if (activeNetwork != null) {
+                if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                    WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    if (wifiInfo != null) {
+                        currBand = wifiInfo.getLinkSpeed();
+                        Log.d("current bandwidth", String.valueOf(currBand));
+                    }
+                } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                    //I don't know what to do
+                }
+            } else {
+                Toast.makeText(ctx, "internet is not connected", Toast.LENGTH_SHORT).show();
+                //we have to handle this
+            }
+        }
+        else
+            currBand = bw;
+        //whether it is in low bandwidth or ~
+        if (currBand <= bandwidth[0]){
+            tsList = lowList;
+            System.out.println("current bandwidth is in low region");
+        }
+        else if(currBand >= bandwidth[2]){
+            tsList = highList;
+            System.out.println("current bandwidth is in high region");
+        }
+        else{
+            tsList = midList;
+            System.out.println("current bandwidth is in mid region");
+        }
+        String tsURL;
+        TsFile currTs;
+        if (curr>=tsSize)
+            return "";
+        else {
+            currTs = tsList.get(curr);
+            tsURL = currTs.getLoc();
+            curr++;
+        }
+        try {
+                HttpDownload.httpGet(tsURL, pathInDev);
+                return pathInDev+"/"+currTs.getName();
+        } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(ctx, "error in http requests", Toast.LENGTH_SHORT).show();
+            return "";
+        }
+    }
+    /*
+    public TsFile findTs(long t, int bw, boolean auto, Context ctx){
         ArrayList<TsFile> tsList;
         int currBand = 30000;
         //get some bandwidth
         //this line will be replaced by WifiManager
-        ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = conMan.getActiveNetworkInfo();
-        if (activeNetwork != null) {
-            if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
-                WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
-                WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-                if (wifiInfo != null) {
-                    currBand = wifiInfo.getLinkSpeed();
-                    Log.d("current bandwidth", String.valueOf(currBand));
+        if (auto) {
+            ConnectivityManager conMan = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = conMan.getActiveNetworkInfo();
+            if (activeNetwork != null) {
+                if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                    WifiManager wifiManager = (WifiManager) ctx.getSystemService(Context.WIFI_SERVICE);
+                    WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+                    if (wifiInfo != null) {
+                        currBand = wifiInfo.getLinkSpeed();
+                        Log.d("current bandwidth", String.valueOf(currBand));
+                    }
+                } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                    //I don't know what to do
                 }
-            } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
-                //I don't know what to do
+            } else {
+                Toast.makeText(ctx, "internet is not connected", Toast.LENGTH_SHORT).show();
+                //we have to handle this
             }
-        } else {
-            Toast.makeText(ctx, "internet is not connected", Toast.LENGTH_SHORT).show();
-            //we have to handle this
         }
+        else
+            currBand = bw;
         //whether it is in low bandwidth or ~
         if (currBand <= bandwidth[0]){
             tsList = lowList;
@@ -64,24 +129,38 @@ public class TsManager {
             System.out.println("current bandwidth is in mid region");
         }
 
-        TsFile curr;
+        TsFile curr = null;
         int i;
         int size = tsList.size();
-        for(i=(int)size/2; i < size; ){
+        String tsURL = "";
+        for(i=(int)size/2; i < size && i >= 0; ){
             curr = tsList.get(i);
             if (t <= curr.getTimeEnd()){
-                if (t >= curr.getTimeStart())
-                    return curr.getLoc();
+                if (t >= curr.getTimeStart()) {
+                    tsURL = curr.getLoc();
+                    break;
+                }
                 else
                     i--;
             }
             else
                 i++;
         }
-        return "Can't find ts file - wrong time location";
-    }
+
+        if (tsURL.equals(""))
+            return null;
+        else {
+            try {
+                HttpDownload.httpGet(tsURL, pathInDev);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(ctx, "error in http requests", Toast.LENGTH_SHORT).show();
+            }
+            return curr;
+        }
+    }*/
     public TsManager(String p, String f) throws IOException{
-        float lTime, ltemp;
+        long lTime, ltemp;
 
         pathInDev = p;
         fileName = f;
@@ -145,9 +224,11 @@ public class TsManager {
                 if (line==null) break;
                 else{
                     if (line.substring(0, 8).compareTo("#EXTINF:")==0){
-                        ltemp = lTime + Float.parseFloat(line.substring(8, line.length()-1));
+                        ltemp = lTime + (long)(1000*Float.parseFloat(line.substring(8, line.length()-1)));
                         String loc = br.readLine();
-                        TsFile tsSeg = new TsFile(lTime, ltemp, highURL+loc);
+                        int dIndex = loc.lastIndexOf('.');
+                        loc = loc.substring(0, dIndex)+".h264";
+                        TsFile tsSeg = new TsFile(lTime, ltemp, highURL+loc, loc);
                         highList.add(tsSeg);
                         lTime = ltemp;
                     }
@@ -164,9 +245,11 @@ public class TsManager {
                 if (line==null) break;
                 else{
                     if (line.substring(0, 8).compareTo("#EXTINF:")==0){
-                        ltemp = lTime + Float.parseFloat(line.substring(8, line.length()-1));
+                        ltemp = lTime + (long)(1000*Float.parseFloat(line.substring(8, line.length()-1)));
                         String loc = br.readLine();
-                        TsFile tsSeg = new TsFile(lTime, ltemp, midURL+loc);
+                        int dIndex = loc.lastIndexOf('.');
+                        loc = loc.substring(0, dIndex)+".h264";
+                        TsFile tsSeg = new TsFile(lTime, ltemp, midURL+loc, loc);
                         midList.add(tsSeg);
                         lTime = ltemp;
                     }
@@ -183,19 +266,23 @@ public class TsManager {
                 if (line==null) break;
                 else{
                     if (line.substring(0, 8).compareTo("#EXTINF:")==0){
-                        ltemp = lTime + Float.parseFloat(line.substring(8, line.length()-1));
+                        ltemp = lTime + (long)(1000*Float.parseFloat(line.substring(8, line.length()-1)));
                         String loc = br.readLine();
-                        TsFile tsSeg = new TsFile(lTime, ltemp, lowURL+loc);
+                        int dIndex = loc.lastIndexOf('.');
+                        loc = loc.substring(0, dIndex)+".h264";
+                        TsFile tsSeg = new TsFile(lTime, ltemp, lowURL+loc, loc);
                         lowList.add(tsSeg);
                         lTime = ltemp;
                     }
                 }
             }
             br.close();
+            tsSize = highList.size();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (Exception ex){
             System.out.println("M3u8 format error!");
         }
+        Log.i("TsManager", "TsManager finished");
     }
 }
