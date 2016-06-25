@@ -71,11 +71,8 @@ import java.util.regex.Pattern;
  */
 public class RtspServer extends Service {
 //	public static String LOCAL_IP = "10.0.2.15";
-<<<<<<< HEAD
 	public static String LOCAL_IP = "127.0.0.1";
-=======
 
->>>>>>> 4893b247bfd95a66c1180d50cae779454df36e30
 	public final static String TAG = "RtspServer";
 	public final static String HHTAG = "HyeokHwa RtspServer";
 
@@ -97,7 +94,7 @@ public class RtspServer extends Service {
 	static int FRAME_PERIOD = 1000;
 	static int VIDEO_LENGTH = 500;
 	static int RTSP_ID = 123456;
-	static int DEFAULT_TTL = 100;
+	static int DEFAULT_TTL = 1;
 
 	/** Key used in the SharedPreferences for the port used by the RTSP server. */
 	public final static String KEY_PORT = "rtsp_port";
@@ -420,12 +417,8 @@ public class RtspServer extends Service {
 			mPacketizer = new H264Packetizer();
 			//mPacketizer2 = new MyPacketizer();
 			try {
-<<<<<<< HEAD
-				InputStream fis = getResources().openRawResource(R.raw.sample1);
-=======
 				//InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_aac);
-				InputStream fis = getResources().openRawResource(R.raw.tttttoutput_h264);
->>>>>>> 4893b247bfd95a66c1180d50cae779454df36e30
+				InputStream fis = getResources().openRawResource(R.raw.xxxxxhigh_h264);
 				mPacketizer.setInputStream(fis);
 				//mPacketizer2.setInputStream(fis);
 				mPacketizer.setTimeToLive(DEFAULT_TTL);
