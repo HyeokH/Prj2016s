@@ -463,6 +463,7 @@ public class RtspServer extends Service {
 
 				man = new M3u8Manager();
 				man.prepare(mSharedPreferences.getString(KEY_NAME, "test.mp4"), getApplicationContext());
+//				man.prepare("test.mp4", getApplicationContext());
 
 				mBwSet = Integer.parseInt(mSharedPreferences.getString(KEY_BW, String.valueOf(mBwSet)));
 				mIsAuto = mSharedPreferences.getBoolean(KEY_IS_AUTO, mIsAuto);
