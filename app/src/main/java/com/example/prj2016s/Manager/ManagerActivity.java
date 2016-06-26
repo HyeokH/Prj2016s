@@ -73,7 +73,7 @@ public class ManagerActivity extends Activity implements View.OnClickListener {
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putBoolean(RtspServer.KEY_IS_AUTO, false);
-        editor.putString(RtspServer.KEY_BW, String.valueOf(200));
+        editor.putString(RtspServer.KEY_BW, String.valueOf(310));
         editor.putString(RtspServer.KEY_NAME, fileName);
         editor.commit();
 //        String fileName= "test.mp4";

@@ -35,7 +35,7 @@ public class MasterActivity extends Activity implements View.OnClickListener {
     public void onClick(View v){
         switch(v.getId()){
             case R.id.button_mp4:
-                String Value = "test.mp4";
+                String Value = "test2.mp4";
                 Intent intent0 = new Intent(MasterActivity.this, ManagerActivity.class);
                 intent0.putExtra("fileName", Value);
                 startActivity(intent0);
